@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+# 환경변수 — 값이 든 파일은 커밋하지 않는다.
+# .env.development 와 .env.example 은 값이 없거나 로컬 주소뿐이라 예외로 커밋한다.
+.env
+.env.local
+.env.*.local
+!.env.development
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -27,3 +35,4 @@ dist-ssr
 CLAUDE.md
 claude.md
 .claude/
+docs
