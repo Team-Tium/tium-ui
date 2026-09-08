@@ -29,4 +29,4 @@ jobs:
                 \"description\": \"by ${{ github.event.pull_request.user.login }}\"
               }]
             }" \
-            "${{ secrets.DISCORD_WEBHOOK_SERVER }}"
+            "${{ secrets.DISCORD_WEBHOOK_UI }}"
