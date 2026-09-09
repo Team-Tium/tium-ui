@@ -9,8 +9,8 @@ export default function OnboardingProfilePage() {
   const Icon = ChevronLeft
 
   return (
-    <div>
-      <div className="flex flex-row items-center text-xl gap-1.5 p-5">
+    <div className="mx-auto max-w-md flex flex-col item-center">
+      <div className="flex flex-row text-xl gap-1.5 p-5">
         <Link to="/onboarding/phone"><Icon /></Link>
         <h2 className="font-medium">자기소개서 작성</h2>
       </div>

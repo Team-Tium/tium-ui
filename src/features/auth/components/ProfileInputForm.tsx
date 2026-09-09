@@ -87,7 +87,7 @@ export function ProfileInputForm() {
                     )
                 })}
 
-                <Button type="submit" className={`size-lg w-full self-center mt-4 ${isValid ? "bg-primary-press" : "bg-muted-foreground"}`} 
+                <Button type="submit" className={`size-lg w-fll self-center mt-4 ${isValid ? "bg-primary-press" : "bg-muted-foreground"}`} 
                   disabled={!isValid || isSubmitting || isPending}>작성 완료</Button>
                 
                 <AddressSearchModal /* 기본 주소의 input bar를 클릭 시 띄워질 Modal */
