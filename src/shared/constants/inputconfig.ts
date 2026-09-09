@@ -1,5 +1,9 @@
 import { z } from "zod"
 
+/** 성별. 백엔드 `Gender` enum 값과 그대로 맞춘다. docs/users_api.md §2 */
+export const GENDERS = ["MALE", "FEMALE"] as const
+export type Gender = (typeof GENDERS)[number]
+
 export const PROFILE_VALIDSCHEMA = z.object({
     name: z
     .string()
@@ -23,16 +27,14 @@ export const PROFILE_VALIDSCHEMA = z.object({
     .email("이메일 형식 : example@email.com")
     .min(1, "이메일을 입력해주세요"),
 
-    mbti: z
-    .string()
-    .min(1, "MBTI를 작성해주세요")
-    .regex(/^[EI][SN][TF][JP]$/i, "입력 형식에 맞춰 작성해주세요")
+    gender: z.enum(GENDERS, { error: "성별을 선택해주세요" })
 })
 
 export type ProfileValidSchema = z.infer<typeof PROFILE_VALIDSCHEMA>
 
+/** 텍스트 input 하나의 설정. 성별은 라디오라 여기 들어가지 않는다(GENDER_OPTIONS 참고). */
 export interface InputConfig {
-    id: keyof ProfileValidSchema,
+    id: Exclude<keyof ProfileValidSchema, "gender">,
     label: string,
     type: "text",
     placeholder: string
@@ -48,8 +50,12 @@ export const INPUTCONFIG_ADDRESS : { base: InputConfig; detail: InputConfig } = 
    detail: { id: "detailAddress", label: "", type: "text", placeholder: "상세 주소를 입력하세요(선택)" },
 }
 
-/* TODO : 정보 1(피그마 내 Onboarding page 3에서 이메일 아래에 있는 input bar)의 확정 */
 export const INPUTCONFIG_AFTER_ADDRESS : InputConfig[] = [
-    { id: "email", label: "이메일", type: "text", placeholder: "이메일을 입력하세요" },
-    { id: "mbti", label: "MBTI", type: "text", placeholder: "MBTI를 입력하세요" }
+    { id: "email", label: "이메일", type: "text", placeholder: "이메일을 입력하세요" }
+]
+
+/* 피그마 Onboarding page 3의 "정보1" 칸 = 성별로 확정 (2026-09-09). docs/ia.md 2절 */
+export const GENDER_OPTIONS : { value: Gender; label: string }[] = [
+    { value: "MALE", label: "남성" },
+    { value: "FEMALE", label: "여성" }
 ]
