@@ -44,7 +44,7 @@ export const INPUTCONFIG_BEFORE_ADDRESS : InputConfig[] = [
 ]
 
 export const INPUTCONFIG_ADDRESS : { base: InputConfig; detail: InputConfig } = {
-   base: { id: "baseAddress", label: "주소", type: "text", placeholder: "주소 찾기를 클릭하세요" },
+   base: { id: "baseAddress", label: "주소", type: "text", placeholder: "주소를 입력하세요" },
    detail: { id: "detailAddress", label: "", type: "text", placeholder: "상세 주소를 입력하세요(선택)" },
 }
 
