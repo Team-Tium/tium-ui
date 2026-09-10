@@ -1,9 +1,10 @@
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 
-import { useAuth } from "@/app/providers/auth-context"
 import { api } from "@/shared/api/client"
 import type { Gender } from "@/shared/constants/inputconfig"
+import type { MemberProfile } from "../types"
+import { meQueryKey } from "./useMe"
 
 /** 요청 바디. 폼 형태가 아니라 API 형태다. docs/users_api.md §2 */
 export interface OnboardingProfileRequest {
@@ -16,36 +17,26 @@ export interface OnboardingProfileRequest {
   gender: Gender
 }
 
-/** 응답 result. 봉투(isSuccess/code/message/result)는 인터셉터가 벗긴다. */
-export interface MemberProfile {
-  memberId: number
-  name: string | null
-  email: string | null
-  phoneNumber: string | null
-  address: string | null
-  gender: Gender | null
-  birthDate: string | null
-  introduction: string | null
-  onboardingCompleted: boolean
-}
-
 /**
  * 온보딩 프로필 저장 — `POST /onboarding/profile` · docs/users_api.md §2
  *
- * 저장에 성공하면 서버가 onboarding_completed 를 true 로 바꾼다. 그 값을 그대로 세션에 반영해야
- * 새로고침했을 때 온보딩으로 되돌아가지 않는다(docs/auth_flow.md 7절의 localStorage 임시조치).
- * `GET /users/me` 가 붙으면 completeOnboarding 대신 그 쿼리를 무효화하는 방식으로 바꾼다.
+ * 저장에 성공하면 서버가 onboarding_completed 를 true 로 바꾼다.
+ * 이 응답은 `GET /users/me` 와 **같은 MemberProfile 형태**라 그대로 캐시에 심는다.
+ * invalidate 하면 홈으로 넘어가자마자 가드가 같은 값을 다시 받아오느라 스피너가 한 번 뜬다.
+ * docs/auth_flow.md 7절 · docs/architecture.md 4절
+ *
+ * 온보딩은 이 화면 하나뿐이라(2026-09-10) 저장 후 바로 홈으로 보낸다. docs/ia.md 2절
  */
 export function useSubmitProfile() {
   const navigate = useNavigate()
-  const { completeOnboarding } = useAuth()
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (body: OnboardingProfileRequest) =>
       api.post<MemberProfile>("/onboarding/profile", body),
     onSuccess: (profile) => {
-      if (profile.onboardingCompleted) completeOnboarding()
-      navigate("/onboarding/permission", { replace: true })
+      queryClient.setQueryData(meQueryKey, profile)
+      navigate("/", { replace: true })
     },
   })
 }

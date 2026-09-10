@@ -9,9 +9,7 @@ const TabBarLayout = lazy(() => import('@/layouts/TabBarLayout'))
 
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'))
 const OAuthCallbackPage = lazy(() => import('@/features/auth/pages/OAuthCallbackPage'))
-const OnboardingPhonePage = lazy(() => import('@/features/auth/pages/OnboardingPhonePage'))
 const OnboardingProfilePage = lazy(() => import('@/features/auth/pages/OnboardingProfilePage'))
-const OnboardingPermissionPage = lazy(() => import('@/features/auth/pages/OnboardingPermissionPage'))
 
 const ChatListPage = lazy(() => import('@/features/chat/pages/ChatListPage'))
 const ChatRoomPage = lazy(() => import('@/features/chat/pages/ChatRoomPage'))
@@ -60,10 +58,9 @@ export function AppRouter() {
           <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
 
           <Route element={<RequireAuth />}>
-            {/* 온보딩 — 완료 여부를 검사하지 않는다. 여기가 완료하러 오는 곳이다 */}
-            <Route path="/onboarding/phone" element={<OnboardingPhonePage />} />
+            {/* 온보딩 — 완료 여부를 검사하지 않는다. 여기가 완료하러 오는 곳이다.
+                전화번호 인증·접근 권한 허용은 제외돼 이 한 화면뿐이다 (2026-09-10). docs/ia.md 2절 */}
             <Route path="/onboarding/profile" element={<OnboardingProfilePage />} />
-            <Route path="/onboarding/permission" element={<OnboardingPermissionPage />} />
 
             <Route element={<RequireOnboarding />}>
               {/* 탭바가 있는 화면 */}
