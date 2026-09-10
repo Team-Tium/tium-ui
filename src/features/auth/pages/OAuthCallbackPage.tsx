@@ -67,14 +67,15 @@ export default function OAuthCallbackPage() {
     mutate(
       { provider, authorizationCode: code },
       {
-        onSuccess: (session) => {
-          startSession(session)
+        onSuccess: ({ memberId, accessToken, refreshToken, onboardingCompleted }) => {
+          startSession({ memberId, accessToken, refreshToken })
 
           // TODO: 소켓이 생기면 여기서 연결한다. docs/auth_flow.md 5절 4단계 · docs/chat_socket.md
 
-          // 라우팅 기준은 onboardingCompleted 하나다. isNewMember 를 쓰지 않는다.
+          // 로그인 직후 분기는 응답 값으로 한다. 여기서 GET /users/me 를 또 부르지 않는다.
+          // 라우팅 기준은 onboardingCompleted 하나다 — isNewMember 를 쓰지 않는다.
           // (온보딩 중 이탈하면 isNewMember=false, onboardingCompleted=false 조합이 생긴다) 7절
-          navigate(session.onboardingCompleted ? '/' : '/onboarding/phone', { replace: true })
+          navigate(onboardingCompleted ? '/' : '/onboarding/profile', { replace: true })
         },
         // code 만료·재사용, 네트워크 실패가 전부 여기로 온다.
         // 메시지는 인터셉터가 이미 사람이 읽을 문장으로 만들어 둔다. shared/api/client.ts

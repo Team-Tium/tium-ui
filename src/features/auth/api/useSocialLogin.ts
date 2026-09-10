@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 
 import { api } from '@/shared/api/client'
-import type { Session } from '@/shared/lib/tokenStorage'
 import type { Provider } from '../types'
 
 /** 요청 바디. docs/auth_api.md 1절 */
@@ -12,12 +11,13 @@ interface SocialLoginRequest {
 }
 
 /** 응답 result. 봉투(isSuccess/code/message/result)는 인터셉터가 벗긴다. */
-interface LoginResult {
+export interface SocialLoginResult {
   memberId: number
   accessToken: string
   refreshToken: string
   /** 환영 문구 등 UX 용도. 라우팅 기준으로 쓰지 않는다. docs/auth_api.md 1절 */
   isNewMember: boolean
+  /** 로그인 직후 분기는 이 값으로 한다. 저장하지 않는다. docs/auth_flow.md 7절 */
   onboardingCompleted: boolean
 }
 
@@ -31,15 +31,11 @@ interface LoginResult {
  */
 export function useSocialLogin() {
   return useMutation({
-    mutationFn: async ({ provider, authorizationCode }: SocialLoginRequest): Promise<Session> => {
-      const { memberId, accessToken, refreshToken, onboardingCompleted } =
-        await api.post<LoginResult>(`/auth/login/${provider}`, {
-          token: null,
-          authorizationCode,
-        })
-
-      return { memberId, accessToken, refreshToken, onboardingCompleted }
-    },
+    mutationFn: ({ provider, authorizationCode }: SocialLoginRequest) =>
+      api.post<SocialLoginResult>(`/auth/login/${provider}`, {
+        token: null,
+        authorizationCode,
+      }),
     // 인가코드는 한 번 쓰면 폐기된다. 재시도하면 두 번째는 반드시 실패한다.
     // QueryProvider 의 mutations.retry 가 이미 0 이지만 이유가 있는 값이라 명시해둔다.
     retry: 0,

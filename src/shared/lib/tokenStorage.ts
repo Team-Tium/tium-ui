@@ -9,7 +9,6 @@ const KEY = {
   accessToken: 'tium.accessToken',
   refreshToken: 'tium.refreshToken',
   memberId: 'tium.memberId',
-  onboardingCompleted: 'tium.onboardingCompleted',
 } as const
 
 export type Tokens = {
@@ -17,9 +16,9 @@ export type Tokens = {
   refreshToken: string
 }
 
+/** 저장하는 것. 온보딩 완료 여부는 저장하지 않는다 — GET /users/me 가 판정한다. docs/auth_flow.md 7절 */
 export type Session = Tokens & {
   memberId: number
-  onboardingCompleted: boolean
 }
 
 export const tokenStorage = {
@@ -32,13 +31,6 @@ export const tokenStorage = {
     return raw === null ? null : Number(raw)
   },
 
-  /**
-   * 임시 조치다. 값을 사용자가 직접 고칠 수 있어 신뢰할 수 없다.
-   * users 명세가 나오면 GET /users/me 로 바꾸고 이 키를 지운다. docs/auth_flow.md 7절
-   */
-  getOnboardingCompleted: () =>
-    localStorage.getItem(KEY.onboardingCompleted) === 'true',
-
   /** 재발급 응답을 저장할 때 쓴다. refresh 도 반드시 새 값으로 덮어쓴다(rotation). */
   saveTokens: ({ accessToken, refreshToken }: Tokens) => {
     localStorage.setItem(KEY.accessToken, accessToken)
@@ -48,14 +40,6 @@ export const tokenStorage = {
   saveSession: (session: Session) => {
     tokenStorage.saveTokens(session)
     localStorage.setItem(KEY.memberId, String(session.memberId))
-    localStorage.setItem(
-      KEY.onboardingCompleted,
-      String(session.onboardingCompleted),
-    )
-  },
-
-  setOnboardingCompleted: (completed: boolean) => {
-    localStorage.setItem(KEY.onboardingCompleted, String(completed))
   },
 
   clear: () => {
