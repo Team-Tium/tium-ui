@@ -20,12 +20,7 @@ export async function fetchDevSession(): Promise<Session> {
     onboardingCompleted: boolean
   }>('/dev/auth/token', { providerId })
 
-  return {
-    memberId,
-    accessToken,
-    refreshToken,
-    // 개발용 로그인은 항상 홈(/)으로 보낸다. 온보딩 화면은 /onboarding/* 로 직접 들어가
-    // 작업한다 (그 라우트는 온보딩 완료 여부를 검사하지 않는다 — app/router/index.tsx).
-    onboardingCompleted: true,
-  }
+  // 온보딩 완료 여부는 서버(GET /users/me)가 판정한다. 여기서 정하지 않는다.
+  // 테스트 계정이 온보딩 미완료면 가드가 /onboarding/profile 로 보낸다. docs/auth_flow.md 7절
+  return { memberId, accessToken, refreshToken }
 }
