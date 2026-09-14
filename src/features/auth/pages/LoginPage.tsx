@@ -5,15 +5,27 @@ import { SocialLoginButton } from '../components/SocialLoginButton'
 import { PROVIDERS } from '../types'
 
 /**
+ * 개발용 로그인을 열지 말지. 빌드 타임 상수 둘의 조합이다.
+ *
+ * - 로컬(`npm run dev`)은 `DEV` 가 true 라 **항상** 열린다. 설정할 게 없다.
+ * - 배포본은 `VITE_DEV_LOGIN=true` 를 넣은 빌드에서만 열린다.
+ *   Vercel **Preview 스코프에만** 넣는다. Production(`main`)에는 넣지 않는다.
+ *
+ * 둘 다 false 면 이 상수가 false 로 접혀 아래 동적 import 까지 번들에서 빠진다.
+ */
+const DEV_LOGIN_ENABLED =
+  import.meta.env.DEV || import.meta.env.VITE_DEV_LOGIN === 'true'
+
+/**
  * 개발용 — Tium 로고 더블클릭 시 테스트 토큰으로 로그인하고 홈으로 보낸다.
- * 운영 빌드에서는 `import.meta.env.DEV` 가 false 라 undefined 를 반환해 아무 일도 안 한다.
- * devAuth 는 동적 import 라 운영 번들에 포함되지 않는다.
+ * 게이트가 닫혀 있으면 undefined 를 반환해 더블클릭에 아무 일도 일어나지 않는다.
+ * docs/auth_flow.md 13절
  */
 function useDevLogin(): (() => void) | undefined {
   const navigate = useNavigate()
   const { startSession } = useAuth()
 
-  if (!import.meta.env.DEV) return undefined
+  if (!DEV_LOGIN_ENABLED) return undefined
 
   return async () => {
     try {
