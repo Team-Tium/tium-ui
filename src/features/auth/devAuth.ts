@@ -5,8 +5,8 @@ import type { Session } from '@/shared/lib/tokenStorage'
  * 개발 전용 — 소셜 로그인을 건너뛰고 테스트 계정의 정식 토큰을 받는다.
  * 백엔드 계약: DevAuthController — POST /dev/auth/token { providerId } → 회원 없으면 생성.
  *
- * `import.meta.env.DEV` 밖에서 부르지 않는다. LoginPage 가 동적 import 로만 불러
- * 운영 번들에는 이 파일이 포함되지 않는다.
+ * LoginPage 의 `DEV_LOGIN_ENABLED` 게이트 안에서 동적 import 로만 부른다.
+ * 게이트가 닫힌 빌드(로컬이 아니고 `VITE_DEV_LOGIN` 도 없는 경우)에는 번들에서 빠진다.
  * 배포 전 확인: docs/architecture.md 6-4 「/dev/auth/token 호출이 남아 있지 않은가」
  */
 export async function fetchDevSession(): Promise<Session> {
