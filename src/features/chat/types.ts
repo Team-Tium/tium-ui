@@ -4,7 +4,7 @@
  * docs/ia.md 3절 (Chat page 1, 최근 채팅 목록)
  */
 
-export type MessageType = "TEXT" | "IMAGE" | "VIDEO"
+export type MessageType = "TEXT" | "IMAGE" | "SYSTEM"
 
 export interface ChatOpponent {
   userId: number

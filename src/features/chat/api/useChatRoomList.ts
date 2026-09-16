@@ -20,7 +20,7 @@ export function useChatRoomList() {
       api.get<ChatRoomListResponse>("/chats", {
         params: {
           size: 20,
-          ...(pageParam ? { cursor: pageParam } : {}), // TODO: 파라미터 이름 확인 필요
+          ...(pageParam ? { cursor: pageParam } : {}),
         },
       }),
     initialPageParam: undefined as number | undefined,

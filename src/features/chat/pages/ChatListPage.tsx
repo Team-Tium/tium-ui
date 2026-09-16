@@ -22,9 +22,11 @@ export default function ChatListPage() {
         isEmpty={!isPending && !isError && (chats?.length ?? 0) === 0}
         emptyText="채팅 내역이 없어요."
       >
-        {chats?.map((chat) => (
+        <div className="divide-y">
+          {chats?.map((chat) => (
           <ChatListItem key={chat.id} chat={chat} />
         ))}
+        </div>
 
         <div ref={sentinelRef} className="h-1" />
 
