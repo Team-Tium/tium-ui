@@ -13,9 +13,6 @@ interface ListStateProps {
 /**
  * 목록·상세 화면의 로딩 / 빈 데이터 / 에러 3종 공용 처리.
  * docs/architecture.md 6-1
- *
- * 재시도 버튼, 커스텀 빈 상태 UI 등은 아직 없음 — 필요한 화면이 생기면
- * 그때 옵션을 추가하는 방식으로 점진적으로 확장하기로 함.
  */
 export function ListState({
   isLoading,

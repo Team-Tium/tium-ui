@@ -12,7 +12,6 @@ export const chatRoomListQueryKey = ["chat", "rooms"] as const
  *
  * "최근"은 정렬 기준(최근 대화순)을 의미. 전체 채팅방을 커서 기반 무한 스크롤로 가져온다.
  * docs/architecture.md 5-2
- * TODO: 커서 요청 파라미터 이름 미확정(명세서엔 size 만 문서화돼 있음).
  */
 export function useChatRoomList() {
   return useInfiniteQuery({
