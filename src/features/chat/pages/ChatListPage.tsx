@@ -24,8 +24,8 @@ export default function ChatListPage() {
       >
         <div className="divide-y">
           {chats?.map((chat) => (
-          <ChatListItem key={chat.id} chat={chat} />
-        ))}
+            <ChatListItem key={chat.id} chat={chat} />
+          ))}
         </div>
 
         <div ref={sentinelRef} className="h-1" />
