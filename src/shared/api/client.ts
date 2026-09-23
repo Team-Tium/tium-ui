@@ -52,7 +52,7 @@ async function requestNewTokens(): Promise<string> {
  * 각자 재발급을 보내면 rotation 때문에 먼저 발급된 토큰이 즉시 폐기돼 로그아웃된다.
  * docs/architecture.md 3절이 "AI 가 가장 자주 빠뜨리는 지점"으로 지목한 부분이다.
  */
-function refreshOnce(): Promise<string> {
+export function refreshAccessToken(): Promise<string> {
   const pending =
     refreshing ??
     (refreshing = requestNewTokens().finally(() => {
@@ -88,7 +88,7 @@ instance.interceptors.response.use(
     if (error.response?.status === 401 && config && !config.retried) {
       config.retried = true
       try {
-        const accessToken = await refreshOnce()
+        const accessToken = await refreshAccessToken()
         config.headers.Authorization = `Bearer ${accessToken}`
         return await instance.request(config)
       } catch {

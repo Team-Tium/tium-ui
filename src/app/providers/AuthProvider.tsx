@@ -26,7 +26,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setHasToken(false)
     // 비우지 않으면 다음 사용자가 이전 사용자의 데이터를 잠깐 본다. docs/auth_flow.md 8절
     queryClient.clear()
-    // TODO: 소켓이 생기면 여기서 구독 해제 후 연결 종료. docs/chat_socket.md 7절
   }, [queryClient])
 
   const value = useMemo<AuthValue>(
