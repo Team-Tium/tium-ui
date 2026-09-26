@@ -3,13 +3,15 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/shared/components/ui/button"
 
-import { PROFILE_VALIDSCHEMA, type ProfileValidSchema, INPUTCONFIG_BEFORE_ADDRESS, INPUTCONFIG_ADDRESS, INPUTCONFIG_AFTER_ADDRESS, GENDER_OPTIONS } from "@/shared/constants/inputconfig"
+import { PROFILE_VALIDSCHEMA, type ProfileValidSchema, INPUTCONFIG_BEFORE_ADDRESS, INPUTCONFIG_ADDRESS, GENDER_OPTIONS } from "@/shared/constants/inputconfig"
 import { AddressSearchModal } from '@/shared/components/AddressSearchModal'
+import { useMe } from "../api/useMe"
 import { useSubmitProfile } from "../api/useSubmitProfile"
 
 /** 자기소개서 작성 페이지의 input form 컴포넌트
  * 피그마 Onboarding page 3 기준 — 이름 → 생년월일 → 주소 → 이메일 → 성별 순.
  * 주소는 모달이 있어야 하기에 주소를 기준으로 나누어 작성함.
+ * 이메일은 입력받지 않는다. 소셜 로그인 때 서버가 저장한 값을 수정할 수 없게 보여주고, 없으면 칸을 숨긴다.
  */
 
 /** 폼은 YYYYMMDD 로 받고 API 는 yyyy-MM-dd 를 받는다. docs/users_api.md §2 */
@@ -19,6 +21,7 @@ function toIsoDate(yyyymmdd: string) {
 
 export function ProfileInputForm() {
     const { mutate, isPending, isError, error } = useSubmitProfile()
+    const { data: me } = useMe()
 
     const {
         register,
@@ -39,7 +42,6 @@ export function ProfileInputForm() {
             name: data.name,
             birthDate: toIsoDate(data.birthdate),
             address: [data.baseAddress, data.detailAddress].filter(Boolean).join(' ').trim(),
-            email: data.email,
             gender: data.gender,
         })
     }
@@ -80,21 +82,13 @@ export function ProfileInputForm() {
                         {...register(INPUTCONFIG_ADDRESS.detail.id)} />
                 </div>
 
-                {INPUTCONFIG_AFTER_ADDRESS.map((input) => { /* 이메일에 대한 input form */
-                    const errorMessage = errors[input.id]?.message
-
-                    return (
-                        <div key={input.id} className="flex flex-col mb-10">
-                            <label className="font-medium" htmlFor={input.id}>{input.label}</label>
-                            <input className="input p-1 border border-sidebar-border rounded-md placeholder:text-muted-foreground"
-                             id={input.id} type={input.type} placeholder={input.placeholder}
-                             {...register(input.id)} />
-                            { errorMessage && (
-                                <span className="text-destructive text-xs p-1">{errorMessage}</span>
-                            )}
-                        </div>
-                    )
-                })}
+                { me?.email && ( /* 이메일 — 소셜 로그인 값. 폼 값이 아니라 저장 요청에도 들어가지 않는다 */
+                    <div className="flex flex-col mb-10">
+                        <label className="font-medium" htmlFor="email">이메일</label>
+                        <input className="input p-1 border border-sidebar-border rounded-md bg-muted text-muted-foreground"
+                         id="email" type="email" value={me.email} readOnly />
+                    </div>
+                )}
 
                 <fieldset className="flex flex-col mb-10"> {/* 성별 — 값이 2개뿐이라 라디오로 받는다 */}
                     <legend className="font-medium">성별</legend>

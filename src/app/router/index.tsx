@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
+import { useAuth } from '@/app/providers/auth-context'
 import { RequireAuth, RequireOnboarding } from './guards'
 
 // 라우트 단위로 잘라서 내려받는다. 49화면을 한 덩어리로 만들지 않는다.
@@ -22,6 +23,8 @@ const VideoCallReadyPage = lazy(() => import('@/features/call/pages/VideoCallRea
 const VideoCallWaitingPage = lazy(() => import('@/features/call/pages/VideoCallWaitingPage'))
 const VideoCallPage = lazy(() => import('@/features/call/pages/VideoCallPage'))
 const CallEndPage = lazy(() => import('@/features/call/pages/CallEndPage'))
+// 착신 팝업. 어느 화면에 있든 전화가 오면 떠야 해서 라우트 밖에 둔다. docs/ia.md 4절
+const IncomingCallModal = lazy(() => import('@/features/call/components/IncomingCallModal'))
 
 const RandomEntryPage = lazy(() => import('@/features/random/pages/RandomEntryPage'))
 const RandomChatPage = lazy(() => import('@/features/random/pages/RandomChatPage'))
@@ -49,6 +52,8 @@ const FaqPage = lazy(() => import('@/features/my/pages/FaqPage'))
 const SuggestPage = lazy(() => import('@/features/my/pages/SuggestPage'))
 
 export function AppRouter() {
+  const { isAuthenticated } = useAuth()
+
   return (
     <BrowserRouter>
       <Suspense fallback={null}>
@@ -88,7 +93,7 @@ export function AppRouter() {
               {/* 탭바가 없는 화면 — 통화 */}
               <Route path="/call/voice/:roomId/ready" element={<VoiceCallReadyPage />} />
               <Route path="/call/voice/:roomId/waiting" element={<VoiceCallWaitingPage />} />
-              <Route path="/call/voice/:roomId" element={<VoiceCallPage />} />
+              <Route path="/call/voice/:callId" element={<VoiceCallPage />} />
               <Route path="/call/video/:roomId/ready" element={<VideoCallReadyPage />} />
               <Route path="/call/video/:roomId/waiting" element={<VideoCallWaitingPage />} />
               <Route path="/call/video/:roomId" element={<VideoCallPage />} />
@@ -110,6 +115,9 @@ export function AppRouter() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
+
+      {/* 따로 감싸야 모달 청크를 받는 동안 화면이 비지 않는다 */}
+      <Suspense fallback={null}>{isAuthenticated && <IncomingCallModal />}</Suspense>
     </BrowserRouter>
   )
 }
