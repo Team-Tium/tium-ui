@@ -13,7 +13,6 @@ export interface OnboardingProfileRequest {
   birthDate: string
   /** 기본주소 + 상세주소를 합친 한 문자열 */
   address: string
-  email: string
   gender: Gender
 }
 

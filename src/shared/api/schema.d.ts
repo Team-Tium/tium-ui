@@ -71,13 +71,41 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * 최근 대화한 채팅방 목록
+         * @description 마지막 메시지 ID 내림차순으로 내려온다. 내가 나간 방과 메시지가 하나도 없는 방은 제외된다. 다음 페이지는 응답의 nextCursor를 cursor로 넘긴다.
+         */
+        get: operations["getChats"];
         put?: never;
         /**
          * 채팅방 생성
          * @description 상대와의 활성 채팅방을 확보합니다. 이미 있으면 새로 만들지 않고 그 방을 반환하며(created=false), 한쪽이라도 나간 방밖에 없으면 새 방을 만듭니다(created=true). 방을 만든 직후에는 메시지가 없어 채팅방 목록에는 아직 나타나지 않습니다.
          */
         post: operations["createRoom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chats/{roomId}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 채팅 내역 조회
+         * @description cursor는 과거 방향(최신순), after는 미래 방향(오래된 순)이다. 둘 다 오면 after가 우선한다. after는 소켓이 끊긴 동안 온 메시지를 채우는 용도다.
+         */
+        get: operations["getMessages"];
+        put?: never;
+        /**
+         * 메시지 보내기
+         * @description TEXT 메시지만 받는다. 상대가 나간 방에는 보낼 수 없다(CHAT4033). 보내는 순간 내 읽음 포인터도 함께 옮겨가므로, 방금 보낸 메시지가 내 unreadCount에 잡히지 않는다.
+         */
+        post: operations["sendMessage"];
         delete?: never;
         options?: never;
         head?: never;
@@ -176,6 +204,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/call": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["startCall"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/call/{callId}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["endCall"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chats/{roomId}/read-receipts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * 메시지 읽음 처리
+         * @description lastReadMessageId 이하의 상대 메시지를 모두 읽음으로 표시한다. 이 방의 메시지가 아니면 CHAT4042. 저장된 값보다 작은 ID는 무시되며, 응답에는 요청값이 아니라 실제로 저장된 포인터가 내려간다.
+         */
+        patch: operations["readMessages"];
+        trace?: never;
+    };
     "/api/v1/feed/{feedId}": {
         parameters: {
             query?: never;
@@ -207,6 +287,26 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chats/{roomId}/member/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 채팅방 나가기
+         * @description 본인만 방에서 나가며 방은 삭제되지 않는다. 다시 들어올 수 없고, 상대는 이 방에 더 이상 메시지를 보낼 수 없다(CHAT4033). 이미 나간 방이면 CHAT4032. 같은 상대와 다시 대화하려면 채팅방 생성 API로 새 방을 만든다.
+         */
+        delete: operations["leaveRoom"];
         options?: never;
         head?: never;
         patch?: never;
@@ -376,6 +476,50 @@ export interface components {
             /** @description 상대방 프로필 이미지 URL. 업로드 경로 미정이라 현재는 항상 null */
             profileImageUrl?: string;
         };
+        SendMessageDTO: {
+            /**
+             * @description 메시지 타입. 현재는 TEXT만 허용한다
+             * @example TEXT
+             * @enum {string}
+             */
+            type?: "TEXT" | "IMAGE" | "SYSTEM";
+            /**
+             * @description 메시지 내용
+             * @example 저도 오늘 즐거웠어요!
+             */
+            content?: string;
+        };
+        ApiResponseSendMessageResultDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["SendMessageResultDTO"];
+        };
+        SendMessageResultDTO: {
+            /**
+             * Format: int64
+             * @description 생성된 메시지 ID
+             * @example 986
+             */
+            messageId?: number;
+            /**
+             * Format: int64
+             * @description 채팅방 ID
+             * @example 101
+             */
+            roomId?: number;
+            /**
+             * Format: int64
+             * @description 보낸 사람 ID
+             * @example 8
+             */
+            senderId?: number;
+            /** @enum {string} */
+            type?: "TEXT" | "IMAGE" | "SYSTEM";
+            content?: string;
+            /** Format: date-time */
+            sentAt?: string;
+        };
         ReissueDTO: {
             refreshToken?: string;
         };
@@ -446,6 +590,134 @@ export interface components {
             heart?: number;
             heartYn?: string;
         };
+        CallStartDTO: {
+            /** @enum {string} */
+            type: "VOICE" | "VIDEO";
+            participantIds?: number[];
+        };
+        ApiResponseCallResultDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["CallResultDTO"];
+        };
+        CallResultDTO: {
+            /** Format: int64 */
+            callId?: number;
+            /** @enum {string} */
+            type?: "VOICE" | "VIDEO";
+            /** @enum {string} */
+            status?: "IN_PROGRESS" | "COMPLETED";
+            /** Format: date-time */
+            startAt?: string;
+            /** Format: date-time */
+            endAt?: string;
+            participantIds?: number[];
+        };
+        ReadMessageDTO: {
+            /**
+             * Format: int64
+             * @description 여기까지 읽었다고 표시할 마지막 메시지 ID
+             * @example 986
+             */
+            lastReadMessageId: number;
+        };
+        ApiResponseReadMessageResultDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["ReadMessageResultDTO"];
+        };
+        ReadMessageResultDTO: {
+            /**
+             * Format: int64
+             * @description 채팅방 ID
+             * @example 101
+             */
+            roomId?: number;
+            /**
+             * Format: int64
+             * @description 처리된 마지막 읽음 메시지 ID
+             * @example 986
+             */
+            lastReadMessageId?: number;
+            /**
+             * Format: date-time
+             * @description 읽음 처리 시각
+             */
+            readAt?: string;
+        };
+        ApiResponseGetChatDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["GetChatDTO"];
+        };
+        ChatRoomDTO: {
+            /** Format: int64 */
+            roomId?: number;
+            opponentLeft?: boolean;
+            opponent?: components["schemas"]["OpponentDTO"];
+            lastMessage?: components["schemas"]["LastMessageDTO"];
+            /** Format: int64 */
+            unreadCount?: number;
+        };
+        GetChatDTO: {
+            rooms?: components["schemas"]["ChatRoomDTO"][];
+            hasNext?: boolean;
+            /** Format: int64 */
+            nextCursor?: number;
+        };
+        LastMessageDTO: {
+            /** Format: int64 */
+            messageId?: number;
+            content?: string;
+            /** @enum {string} */
+            type?: "TEXT" | "IMAGE" | "SYSTEM";
+            /** Format: date-time */
+            sentAt?: string;
+        };
+        ApiResponseGetMessagesDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["GetMessagesDTO"];
+        };
+        GetMessagesDTO: {
+            /** Format: int64 */
+            roomId?: number;
+            opponent?: components["schemas"]["OpponentDTO"];
+            opponentLeft?: boolean;
+            messages?: components["schemas"]["MessageDTO"][];
+            hasNext?: boolean;
+            /** Format: int64 */
+            nextCursor?: number;
+        };
+        MessageDTO: {
+            /**
+             * Format: int64
+             * @description 메시지 ID
+             * @example 985
+             */
+            messageId?: number;
+            /**
+             * Format: int64
+             * @description 보낸 사람 ID. SYSTEM 타입은 null
+             * @example 15
+             */
+            senderId?: number;
+            /** @enum {string} */
+            type?: "TEXT" | "IMAGE" | "SYSTEM";
+            /** @description 메시지 내용. IMAGE면 이미지 URL */
+            content?: string;
+            /** Format: date-time */
+            sentAt?: string;
+            /**
+             * @description 상대가 읽었는지. 내가 보낸 메시지에만 의미가 있다
+             * @example true
+             */
+            isRead?: boolean;
+        };
         ApiResponseListFeedHeartHistoryDTO: {
             isSuccess?: boolean;
             code?: string;
@@ -459,6 +731,25 @@ export interface components {
             memberId?: number;
             /** Format: date-time */
             heartedAt?: string;
+        };
+        ApiResponseLeaveRoomResultDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["LeaveRoomResultDTO"];
+        };
+        LeaveRoomResultDTO: {
+            /**
+             * Format: int64
+             * @description 채팅방 ID
+             * @example 101
+             */
+            roomId?: number;
+            /**
+             * Format: date-time
+             * @description 나간 시각
+             */
+            leftAt?: string;
         };
         ApiResponseWithdrawalResultDTO: {
             isSuccess?: boolean;
@@ -553,6 +844,29 @@ export interface operations {
             };
         };
     };
+    getChats: {
+        parameters: {
+            query?: {
+                cursor?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseGetChatDTO"];
+                };
+            };
+        };
+    };
     createRoom: {
         parameters: {
             query?: never;
@@ -573,6 +887,58 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseCreateRoomResultDTO"];
+                };
+            };
+        };
+    };
+    getMessages: {
+        parameters: {
+            query?: {
+                cursor?: number;
+                after?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseGetMessagesDTO"];
+                };
+            };
+        };
+    };
+    sendMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendMessageDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseSendMessageResultDTO"];
                 };
             };
         };
@@ -715,6 +1081,78 @@ export interface operations {
             };
         };
     };
+    startCall: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CallStartDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseCallResultDTO"];
+                };
+            };
+        };
+    };
+    endCall: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                callId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseCallResultDTO"];
+                };
+            };
+        };
+    };
+    readMessages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReadMessageDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseReadMessageResultDTO"];
+                };
+            };
+        };
+    };
     getFeed: {
         parameters: {
             query?: never;
@@ -801,6 +1239,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseMyProfileDTO"];
+                };
+            };
+        };
+    };
+    leaveRoom: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseLeaveRoomResultDTO"];
                 };
             };
         };

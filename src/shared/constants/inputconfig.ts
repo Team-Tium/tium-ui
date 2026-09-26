@@ -23,10 +23,6 @@ export const PROFILE_VALIDSCHEMA = z.object({
     detailAddress: z
     .string(),
 
-    email: z
-    .email("이메일 형식 : example@email.com")
-    .min(1, "이메일을 입력해주세요"),
-
     gender: z.enum(GENDERS, { error: "성별을 선택해주세요" })
 })
 
@@ -49,10 +45,6 @@ export const INPUTCONFIG_ADDRESS : { base: InputConfig; detail: InputConfig } = 
    base: { id: "baseAddress", label: "주소", type: "text", placeholder: "주소를 입력하세요" },
    detail: { id: "detailAddress", label: "", type: "text", placeholder: "상세 주소를 입력하세요(선택)" },
 }
-
-export const INPUTCONFIG_AFTER_ADDRESS : InputConfig[] = [
-    { id: "email", label: "이메일", type: "text", placeholder: "이메일을 입력하세요" }
-]
 
 /* 피그마 Onboarding page 3의 "정보1" 칸 = 성별로 확정 (2026-09-09). docs/ia.md 2절 */
 export const GENDER_OPTIONS : { value: Gender; label: string }[] = [
