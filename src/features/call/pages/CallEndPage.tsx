@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 
+import { CallEndFeedbackPanel } from '../components/CallEndFeedbackPanel'
 import { CallLogo } from '../components/CallLogo'
 import type { CallEndRouteState } from '../types'
 
@@ -20,7 +21,11 @@ export default function CallEndPage() {
       <CallLogo />
       <h1 className="mt-24 text-2xl font-medium">통화 종료</h1>
 
-      <div className="mt-24 flex w-full flex-col gap-6">
+      <div className="mt-10 w-full">
+        <CallEndFeedbackPanel />
+      </div>
+
+      <div className="mt-14 flex w-full flex-col gap-6">
         <button
           type="button"
           onClick={() => navigate('/', { replace: true })}
