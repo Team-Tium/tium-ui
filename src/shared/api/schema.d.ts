@@ -256,6 +256,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/call/{callId}/stt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["findStt"];
+        put?: never;
+        post: operations["saveStt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/call/{callId}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["callFeedbackFind"];
+        put?: never;
+        post: operations["createCallFeedbackFromStt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/call/{callId}/end": {
         parameters: {
             query?: never;
@@ -320,6 +352,58 @@ export interface paths {
          * @description access 토큰의 회원 정보를 반환합니다. 온보딩 전에도 호출할 수 있으며, 이 경우 이름·전화번호·주소·성별·생년월일·자기소개서가 전부 null입니다.
          */
         get: operations["getMyProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chats/feedback/recent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 피드백 화면 최근 채팅 목록
+         * @description 마지막 메시지 ID 내림차순으로 내려오며, 각 채팅방에 내 피드백 결과 존재 여부를 함께 내려준다.
+         */
+        get: operations["getFeedbackChats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/call/{callId}/feedback/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["findSttStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/call/feedback/recent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["findRecentFeedbackCalls"];
         put?: never;
         post?: never;
         delete?: never;
@@ -559,11 +643,6 @@ export interface components {
             /** Format: date-time */
             sentAt?: string;
         };
-        FeedbackRequestDTOv1: {
-            /** @enum {string} */
-            relationship?: "FRIEND" | "STRANGER";
-            goal?: string;
-        };
         ApiResponseFeedbackResponseDTOv1: {
             isSuccess?: boolean;
             code?: string;
@@ -672,6 +751,21 @@ export interface components {
             endAt?: string;
             participantIds?: number[];
         };
+        ApiResponseSaveResult: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["SaveResult"];
+        };
+        SaveResult: {
+            /** Format: int64 */
+            callId?: number;
+            /** Format: int64 */
+            speakerUserId?: number;
+            /** @enum {string} */
+            status?: "WAITING_RECORDING" | "ANALYZING" | "READY" | "GENERATING" | "DONE" | "FAILED";
+            message?: string;
+        };
         ReadMessageDTO: {
             /**
              * Format: int64
@@ -776,6 +870,27 @@ export interface components {
              */
             isRead?: boolean;
         };
+        ApiResponseRecentFeedbackChatListDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["RecentFeedbackChatListDTO"];
+        };
+        RecentFeedbackChatDTO: {
+            /** Format: int64 */
+            roomId?: number;
+            opponent?: components["schemas"]["OpponentDTO"];
+            preview?: string;
+            /** Format: date-time */
+            lastMessageAt?: string;
+            hasFeedback?: boolean;
+        };
+        RecentFeedbackChatListDTO: {
+            items?: components["schemas"]["RecentFeedbackChatDTO"][];
+            hasNext?: boolean;
+            /** Format: int64 */
+            nextCursor?: number;
+        };
         ApiResponseListFeedHeartHistoryDTO: {
             isSuccess?: boolean;
             code?: string;
@@ -789,6 +904,77 @@ export interface components {
             memberId?: number;
             /** Format: date-time */
             heartedAt?: string;
+        };
+        ApiResponseSegmentList: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["SegmentList"];
+        };
+        Segment: {
+            speaker?: string;
+            /** Format: int64 */
+            startMs?: number;
+            /** Format: int64 */
+            endMs?: number;
+            text?: string;
+        };
+        SegmentList: {
+            /** Format: int64 */
+            callId?: number;
+            segments?: components["schemas"]["Segment"][];
+        };
+        ApiResponseStatus: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["Status"];
+        };
+        Status: {
+            /** Format: int64 */
+            callId?: number;
+            /** @enum {string} */
+            status?: "WAITING_RECORDING" | "ANALYZING" | "READY" | "GENERATING" | "DONE" | "FAILED";
+            mySttSaved?: boolean;
+            otherSttSaved?: boolean;
+            feedbackReady?: boolean;
+            feedbackCreated?: boolean;
+            missingRecordingOwner?: string;
+            failedReason?: string;
+            message?: string;
+        };
+        ApiResponseRecentCallList: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["RecentCallList"];
+        };
+        Opponent: {
+            /** Format: int64 */
+            userId?: number;
+            nickname?: string;
+            profileImageUrl?: string;
+        };
+        RecentCall: {
+            /** Format: int64 */
+            callId?: number;
+            opponent?: components["schemas"]["Opponent"];
+            /** Format: date-time */
+            startedAt?: string;
+            /** Format: date-time */
+            endedAt?: string;
+            /** Format: int64 */
+            durationSeconds?: number;
+            hasFeedback?: boolean;
+            /** @enum {string} */
+            status?: "WAITING_RECORDING" | "ANALYZING" | "READY" | "GENERATING" | "DONE" | "FAILED";
+            message?: string;
+        };
+        RecentCallList: {
+            items?: components["schemas"]["RecentCall"][];
+            hasNext?: boolean;
+            /** Format: int64 */
+            nextCursor?: number;
         };
         ApiResponseLeaveRoomResultDTO: {
             isSuccess?: boolean;
@@ -1054,11 +1240,7 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["FeedbackRequestDTOv1"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
@@ -1233,6 +1415,102 @@ export interface operations {
             };
         };
     };
+    findStt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                callId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseSegmentList"];
+                };
+            };
+        };
+    };
+    saveStt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                callId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    startedAt?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseSaveResult"];
+                };
+            };
+        };
+    };
+    callFeedbackFind: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                callId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseFeedbackResponseDTOv1"];
+                };
+            };
+        };
+    };
+    createCallFeedbackFromStt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                callId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseFeedbackResponseDTOv1"];
+                };
+            };
+        };
+    };
     endCall: {
         parameters: {
             query?: never;
@@ -1367,6 +1645,74 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseMyProfileDTO"];
+                };
+            };
+        };
+    };
+    getFeedbackChats: {
+        parameters: {
+            query?: {
+                cursor?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseRecentFeedbackChatListDTO"];
+                };
+            };
+        };
+    };
+    findSttStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                callId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseStatus"];
+                };
+            };
+        };
+    };
+    findRecentFeedbackCalls: {
+        parameters: {
+            query?: {
+                cursor?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseRecentCallList"];
                 };
             };
         };

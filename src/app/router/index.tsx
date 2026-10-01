@@ -23,6 +23,8 @@ const VideoCallReadyPage = lazy(() => import('@/features/call/pages/VideoCallRea
 const VideoCallWaitingPage = lazy(() => import('@/features/call/pages/VideoCallWaitingPage'))
 const VideoCallPage = lazy(() => import('@/features/call/pages/VideoCallPage'))
 const CallEndPage = lazy(() => import('@/features/call/pages/CallEndPage'))
+// 통화 중 화면과 종료 화면 사이에서 녹음 파일을 들고 있는 부모 라우트
+const CallSessionBoundary = lazy(() => import('@/features/call/components/CallSessionBoundary'))
 // 착신 팝업. 어느 화면에 있든 전화가 오면 떠야 해서 라우트 밖에 둔다. docs/ia.md 4절
 const IncomingCallModal = lazy(() => import('@/features/call/components/IncomingCallModal'))
 
@@ -41,7 +43,7 @@ const FeedWritePage = lazy(() => import('@/features/feed/pages/FeedWritePage'))
 const FriendListPage = lazy(() => import('@/features/feed/pages/FriendListPage'))
 
 const FeedbackListPage = lazy(() => import('@/features/feedback/pages/FeedbackListPage'))
-const FeedbackDetailPage = lazy(() => import('@/features/feedback/pages/FeedbackDetailPage'))
+const CallFeedbackDetailPage = lazy(() => import('@/features/feedback/pages/CallFeedbackDetailPage'))
 
 const MyPage = lazy(() => import('@/features/my/pages/MyPage'))
 const MyVerifyPage = lazy(() => import('@/features/my/pages/MyVerifyPage'))
@@ -79,7 +81,7 @@ export function AppRouter() {
                 <Route path="/people/friends" element={<FriendListPage />} />
 
                 <Route path="/feedback" element={<FeedbackListPage />} />
-                <Route path="/feedback/:id" element={<FeedbackDetailPage />} />
+                <Route path="/feedback/call/:callId" element={<CallFeedbackDetailPage />} />
 
                 <Route path="/my" element={<MyPage />} />
                 <Route path="/my/verify" element={<MyVerifyPage />} />
@@ -93,11 +95,13 @@ export function AppRouter() {
               {/* 탭바가 없는 화면 — 통화 */}
               <Route path="/call/voice/:roomId/ready" element={<VoiceCallReadyPage />} />
               <Route path="/call/voice/:roomId/waiting" element={<VoiceCallWaitingPage />} />
-              <Route path="/call/voice/:callId" element={<VoiceCallPage />} />
               <Route path="/call/video/:roomId/ready" element={<VideoCallReadyPage />} />
               <Route path="/call/video/:roomId/waiting" element={<VideoCallWaitingPage />} />
               <Route path="/call/video/:roomId" element={<VideoCallPage />} />
-              <Route path="/call/:callId/end" element={<CallEndPage />} />
+              <Route element={<CallSessionBoundary />}>
+                <Route path="/call/voice/:callId" element={<VoiceCallPage />} />
+                <Route path="/call/:callId/end" element={<CallEndPage />} />
+              </Route>
 
               {/* 탭바가 없는 화면 — 랜덤 대화 */}
               <Route path="/random" element={<RandomEntryPage />} />

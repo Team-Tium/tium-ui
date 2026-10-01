@@ -1,5 +1,6 @@
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
+import { CallEndFeedbackPanel } from '../components/CallEndFeedbackPanel'
 import { CallLogo } from '../components/CallLogo'
 import type { CallEndRouteState } from '../types'
 
@@ -13,14 +14,20 @@ const BUTTON_CLASS = 'bg-foreground text-background h-10 w-full rounded-lg text-
  */
 export default function CallEndPage() {
   const navigate = useNavigate()
-  const roomId = (useLocation().state as CallEndRouteState | null)?.roomId
+  const callId = Number(useParams().callId)
+  const state = useLocation().state as CallEndRouteState | null
+  const roomId = state?.roomId
 
   return (
     <div className="mx-auto flex min-h-svh max-w-md flex-col items-center px-5 pt-12">
       <CallLogo />
       <h1 className="mt-24 text-2xl font-medium">통화 종료</h1>
 
-      <div className="mt-24 flex w-full flex-col gap-6">
+      <div className="mt-10 w-full">
+        <CallEndFeedbackPanel callId={callId} opponentName={state?.opponentName} />
+      </div>
+
+      <div className="mt-14 flex w-full flex-col gap-6">
         <button
           type="button"
           onClick={() => navigate('/', { replace: true })}

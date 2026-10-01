@@ -26,6 +26,9 @@ export default function IncomingCallModal() {
 
         <div className="flex w-full flex-col items-center gap-4 px-10">
           {error && <p className="text-destructive text-center text-sm">{error}</p>}
+          <p className="text-muted-foreground text-center text-xs">
+            통화 피드백을 위해 내 음성이 녹음되어 서버로 전송돼요
+          </p>
           <div className="flex w-full justify-between">
             <HangUpButton onClick={reject} disabled={accepting} />
             <CallRoundButton

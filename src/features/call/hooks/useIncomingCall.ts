@@ -56,7 +56,11 @@ export function useIncomingCall() {
       setAccepting(false)
       return
     }
-    const state: VoiceCallRouteState = { isCaller: false, opponentName: incoming.callerName }
+    const state: VoiceCallRouteState = {
+      isCaller: false,
+      opponentName: incoming.callerName,
+      sessionOrigin: performance.timeOrigin,
+    }
     navigate(`/call/voice/${incoming.callId}`, { state })
     close()
   }, [close, incoming, navigate])
