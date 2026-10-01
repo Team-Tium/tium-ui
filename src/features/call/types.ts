@@ -61,6 +61,13 @@ export type VoiceCallRouteState = {
   opponentName: string
   /** 거는 쪽만 안다. 받는 쪽은 착신 이벤트에 채팅방 번호가 없다. */
   roomId?: number
+  /**
+   * 이동한 시점의 `performance.timeOrigin`.
+   * 새로고침하면 값이 달라진다. 다르면 history에 남은 값으로 통화를 다시 걸지 않는다.
+   */
+  sessionOrigin: number
+  /** 거는 쪽만 안다. 받는 쪽은 통화 중 화면에서 수락 이벤트를 받아 만든다. */
+  acceptance?: AcceptanceAnchor
 }
 
 /** 대기 화면으로 넘기는 값. 대기 화면 주소에는 callId가 없다. */
@@ -73,6 +80,7 @@ export type VoiceCallWaitingRouteState = {
 export type CallEndRouteState = {
   /** 있으면 "1:1 채팅방으로 돌아가기"를 보인다. */
   roomId?: number
+  opponentName?: string
 }
 
 /** 착신 모달이 띄우는 전화 한 통. */
@@ -88,3 +96,27 @@ export type CallIncomingData = {
   caller: { userId: number; nickname: string }
   createdAt: string
 }
+
+// ── 녹음 ──────────────────────────────────────────────────────────────
+
+/** 수락 시각과, 그 이벤트를 받은 순간의 기기 단조 시계. 녹음 시작 시각을 계산하는 기준이다. */
+export type AcceptanceAnchor = {
+  acceptedAt: string
+  receivedMonoMs: number
+}
+
+/**
+ * 녹음이 실패한 이유.
+ * - unsupported: 이 브라우저에서 쓸 수 있는 녹음 형식이 없다
+ * - recorder: 녹음기 오류, 또는 정지가 제때 끝나지 않았다
+ * - too-large: 파일이 크기 상한을 넘었다
+ * - empty: 녹음된 내용이 없다
+ */
+export type RecordingFailure = 'unsupported' | 'recorder' | 'too-large' | 'empty'
+
+/** 통화가 끝났을 때의 녹음 결과. */
+export type RecordingOutcome =
+  | { kind: 'ready'; blob: Blob; filename: string; startedAt: string }
+  | { kind: 'failed'; reason: RecordingFailure }
+  /** 연결되기 전에 끝나 녹음을 시작하지 않았다. */
+  | { kind: 'not-recorded' }

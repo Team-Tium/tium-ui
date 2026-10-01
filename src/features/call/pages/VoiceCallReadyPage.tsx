@@ -92,6 +92,9 @@ export default function VoiceCallReadyPage() {
 
       <footer className="px-5 pb-8">
         {error && <p className="text-destructive mb-3 text-center text-sm">{error}</p>}
+        <p className="text-muted-foreground mb-3 text-center text-xs">
+          통화 피드백을 위해 내 음성이 녹음되어 서버로 전송돼요
+        </p>
         <button
           type="button"
           onClick={handleStart}
