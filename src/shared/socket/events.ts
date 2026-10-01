@@ -44,3 +44,15 @@ export function parseSocketEvent(raw: string): SocketEvent | null {
     return null
   }
 }
+
+/**
+ * 채팅 소켓 이벤트 이름. 백엔드(ChatSocketEventListener.java) 확인 완료 —
+ * 접두어 없이 chat_socket.md 그대로다. socket-foundation.md §6의 CHAT_ 접두어
+ * 제안은 아직 반영 안 됨.
+ */
+export const CHAT_EVENT = {
+  messageCreated: 'MESSAGE_CREATED',
+  messageRead: 'MESSAGE_READ',
+  roomUpdated: 'ROOM_UPDATED',
+  memberLeft: 'MEMBER_LEFT',
+} as const

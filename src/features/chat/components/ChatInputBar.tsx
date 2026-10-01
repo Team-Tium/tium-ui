@@ -1,12 +1,26 @@
-import { type SubmitEvent, useState } from "react"
-import { Plus, Image, Paperclip, Send, Sprout } from "lucide-react"
+import { Image, Paperclip, Plus, Send, Sprout } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button } from "@/shared/components/ui/button"
 
+const messageSchema = z.object({
+  content: z.string().trim().min(1),
+})
+type MessageFormValues = z.infer<typeof messageSchema>
+
+interface SendOptions {
+  onSuccess?: () => void
+  onError?: () => void
+}
+
 interface ChatInputBarProps {
-  /** opponentLeft가 true면 입력창 대신 안내 문구만 보인다. docs/chat_api.md §2 */
+  /** 로딩·에러·opponentLeft 등 입력창 자체를 잠가야 할 때 true */
   disabled: boolean
+  /** disabled가 true일 때, 안내 문구를 "상대방이 나갔다"로 보여줄지 여부 */
+  opponentLeft: boolean
   isSending: boolean
-  onSend: (content: string) => void
+  onSend: (content: string, options?: SendOptions) => void
   showRecommendations: boolean
   recommendations: string[] | undefined
   isRecommending: boolean
@@ -21,6 +35,7 @@ interface ChatInputBarProps {
  */
 export function ChatInputBar({
   disabled,
+  opponentLeft,
   isSending,
   onSend,
   showRecommendations,
@@ -28,21 +43,26 @@ export function ChatInputBar({
   isRecommending,
   onToggleRecommendations,
 }: ChatInputBarProps) {
-  const [content, setContent] = useState("")
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { isValid },
+  } = useForm<MessageFormValues>({
+    resolver: zodResolver(messageSchema),
+    mode: "onChange",
+    defaultValues: { content: "" },
+  })
 
-  // React 19.2.10+ 에서 FormEvent가 deprecated 되어 SubmitEvent로 교체함
-  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const trimmed = content.trim()
-    if (!trimmed) return
-    onSend(trimmed)
-    setContent("")
+  const onSubmit = (values: MessageFormValues) => {
+    onSend(values.content, { onSuccess: () => reset() })
   }
 
   if (disabled) {
     return (
       <div className="border-t border-border p-3 text-center text-sm text-muted-foreground">
-        상대방이 나간 채팅방이에요. 메시지를 보낼 수 없어요.
+        {opponentLeft ? "상대방이 나간 채팅방이에요. 메시지를 보낼 수 없어요." : "불러오는 중..."}
       </div>
     )
   }
@@ -75,7 +95,7 @@ export function ChatInputBar({
               <button
                 key={i}
                 type="button"
-                onClick={() => setContent(text)}
+                onClick={() => setValue("content", text, { shouldValidate: true })}
                 className="max-w-[160px] shrink-0 truncate rounded-full border border-sidebar-border bg-muted px-3 py-1.5 text-left text-sm transition-transform active:scale-95 active:bg-sidebar-border"
               >
                 {text}
@@ -86,14 +106,13 @@ export function ChatInputBar({
       </div>
 
       {/* 하단 줄: + / 입력창 / 첨부 / 전송 */}
-      <form onSubmit={handleSubmit} className="flex items-center gap-1.5 p-3">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex items-center gap-1.5 p-3">
         <Button type="button" size="icon" variant="ghost" className="rounded-full shrink-0" aria-label="더보기">
           <Plus size={20} />
         </Button>
 
         <input
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+          {...register("content")}
           placeholder="메시지를 입력하세요"
           className="flex-1 rounded-full border border-sidebar-border px-4 py-2 text-sm min-w-0"
         />
@@ -109,8 +128,8 @@ export function ChatInputBar({
         <Button
           type="submit"
           size="icon"
-          disabled={!content.trim() || isSending}
-          className={`rounded-full shrink-0 ${content.trim() ? "bg-primary-press" : ""}`}
+          disabled={!isValid || isSending}
+          className={`rounded-full shrink-0 ${isValid ? "bg-primary-press" : ""}`}
           aria-label="전송"
         >
           <Send size={18} />

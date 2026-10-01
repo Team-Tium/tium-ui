@@ -1,3 +1,4 @@
+import { useAuth } from '@/app/providers/auth-context'
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import { useSubscription } from '@/shared/socket/useSubscription'
 import { socketDestination } from '@/shared/socket/events'
@@ -22,6 +23,7 @@ import type {
  */
 export function useChatRoomSocket(roomId: number, onMessageCreated?: () => void) {
   const queryClient = useQueryClient()
+  const { memberId } = useAuth()
 
   useSubscription(socketDestination.chatRoom(roomId), (event) => {
     switch (event.type) {
@@ -44,6 +46,8 @@ export function useChatRoomSocket(roomId: number, onMessageCreated?: () => void)
 
       case CHAT_EVENT.messageRead: {
         const data = event.data as MessageReadEvent
+        if (data.readerId === memberId) break // 내가 읽은 건 이미 반영돼 있으니 무시
+
         queryClient.setQueryData<InfiniteData<ChatRoomMessagesResponse, number | undefined>>(
           chatMessagesQueryKey(roomId),
           (old) =>
