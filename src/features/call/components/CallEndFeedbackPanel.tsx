@@ -46,8 +46,10 @@ export function CallEndFeedbackPanel({ callId }: Props) {
   const { upload, recordingNotice, hasRecording, retryUpload } = useCallSession()
 
   // 녹음을 못 했으면 서버 상태가 움직이지 않으니 조회하지 않는다.
-  // 이유를 모르는 경우(새로고침)는 전에 올렸을 수 있어 조회한다.
-  const showStatus = Number.isFinite(callId) && (upload !== 'none' || recordingNotice === null)
+  // 이유를 모르는 경우(새로고침)는 전에 올렸을 수 있고, 이미 피드백에 쓰인 녹음은 결과가 있어 조회한다.
+  const showStatus =
+    Number.isFinite(callId) &&
+    (upload !== 'none' || recordingNotice === null || recordingNotice === 'already-used')
   const statusQuery = useCallFeedbackStatus(callId, { enabled: showStatus })
   const status = statusQuery.data
   const waitedLong = useLasted(status?.status === 'WAITING_RECORDING', WAITING_HINT_MS)
