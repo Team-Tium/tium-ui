@@ -15,7 +15,8 @@ const BUTTON_CLASS = 'bg-foreground text-background h-10 w-full rounded-lg text-
 export default function CallEndPage() {
   const navigate = useNavigate()
   const callId = Number(useParams().callId)
-  const roomId = (useLocation().state as CallEndRouteState | null)?.roomId
+  const state = useLocation().state as CallEndRouteState | null
+  const roomId = state?.roomId
 
   return (
     <div className="mx-auto flex min-h-svh max-w-md flex-col items-center px-5 pt-12">
@@ -23,7 +24,7 @@ export default function CallEndPage() {
       <h1 className="mt-24 text-2xl font-medium">통화 종료</h1>
 
       <div className="mt-10 w-full">
-        <CallEndFeedbackPanel callId={callId} />
+        <CallEndFeedbackPanel callId={callId} opponentName={state?.opponentName} />
       </div>
 
       <div className="mt-14 flex w-full flex-col gap-6">
