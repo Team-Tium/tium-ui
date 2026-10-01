@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
+import { callFeedbackHref } from '@/shared/api/callFeedback/paths'
 import { useCallFeedbackStatus } from '@/shared/api/callFeedback/useCallFeedbackStatus'
 import { ListState } from '@/shared/components/ListState'
 import { Button } from '@/shared/components/ui/button'
-import { getCallFeedbackStatusText } from '@/shared/lib/callFeedbackStatusText'
+import { getCallFeedbackStatusText, NO_SPEECH_REASON } from '@/shared/lib/callFeedbackStatusText'
 import { useCallSession, type CallUploadState, type RecordingNotice } from '../hooks/useCallSession'
 
 const NOTICE_TEXT: Record<RecordingNotice, string> = {
@@ -39,10 +41,13 @@ function useLasted(active: boolean, ms: number) {
 
 type Props = {
   callId: number
+  /** 결과 화면 제목에 쓴다. */
+  opponentName?: string
 }
 
 /** 통화 종료 화면의 녹음 업로드 상태와 피드백 진행 상태. */
-export function CallEndFeedbackPanel({ callId }: Props) {
+export function CallEndFeedbackPanel({ callId, opponentName }: Props) {
+  const navigate = useNavigate()
   const { upload, recordingNotice, hasRecording, retryUpload } = useCallSession()
 
   // 녹음을 못 했으면 서버 상태가 움직이지 않으니 조회하지 않는다.
@@ -54,7 +59,11 @@ export function CallEndFeedbackPanel({ callId }: Props) {
   const status = statusQuery.data
   const waitedLong = useLasted(status?.status === 'WAITING_RECORDING', WAITING_HINT_MS)
 
-  const myAnalysisFailed = status?.status === 'FAILED' && status.mySttSaved === false
+  // 대화가 인식되지 않은 실패는 같은 파일을 다시 올려도 결과가 같다.
+  const myAnalysisFailed =
+    status?.status === 'FAILED' &&
+    status.mySttSaved === false &&
+    status.failedReason !== NO_SPEECH_REASON
   const canRetry = hasRecording && (upload === 'failed' || (upload === 'done' && myAnalysisFailed))
 
   return (
@@ -89,6 +98,16 @@ export function CallEndFeedbackPanel({ callId }: Props) {
               <p className="text-muted-foreground text-xs">
                 상대방 녹음을 기다리고 있어요. 나중에 피드백 탭에서 확인할 수 있어요
               </p>
+            )}
+            {/* 다시 올릴 수 있는 동안은 숨긴다. 이 화면을 떠나면 녹음 파일이 사라진다. */}
+            {!canRetry && (
+              <Button
+                size="sm"
+                className="mt-2 self-center"
+                onClick={() => navigate(callFeedbackHref(callId), { state: { opponentName } })}
+              >
+                피드백 보러 가기
+              </Button>
             )}
           </ListState>
           {statusQuery.isError && (

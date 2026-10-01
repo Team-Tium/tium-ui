@@ -5,6 +5,8 @@ type StatusInput = {
   status?: string
   mySttSaved?: boolean
   otherSttSaved?: boolean
+  /** `FAILED`일 때 실패 코드. */
+  failedReason?: string
 }
 
 type StatusText = {
@@ -21,7 +23,11 @@ const TEXT: Record<Exclude<CallFeedbackStatus, 'FAILED'>, string> = {
   DONE: '피드백이 완성되었어요',
 }
 
-function failedText(mySttSaved?: boolean, otherSttSaved?: boolean): string {
+/** 녹음은 분석됐지만 알아들을 수 있는 대화가 없었다. 같은 파일을 다시 올려도 결과가 같다. */
+export const NO_SPEECH_REASON = 'FEEDBACK4001'
+
+function failedText(mySttSaved?: boolean, otherSttSaved?: boolean, failedReason?: string): string {
+  if (failedReason === NO_SPEECH_REASON) return '대화 내용이 인식되지 않았어요'
   if (mySttSaved === false && otherSttSaved !== false) return '내 녹음 분석에 실패했어요'
   if (otherSttSaved === false && mySttSaved !== false) {
     return '상대방 녹음 분석에 실패했어요. 상대가 다시 올려야 해요'
@@ -34,9 +40,12 @@ export function getCallFeedbackStatusText({
   status,
   mySttSaved,
   otherSttSaved,
+  failedReason,
 }: StatusInput): StatusText {
-  if (status === 'FAILED') return { text: failedText(mySttSaved, otherSttSaved), canGenerate: false }
-  if (status !== undefined && status in TEXT) {
+  if (status === 'FAILED') {
+    return { text: failedText(mySttSaved, otherSttSaved, failedReason), canGenerate: false }
+  }
+  if (status !== undefined && Object.hasOwn(TEXT, status)) {
     return { text: TEXT[status as keyof typeof TEXT], canGenerate: status === 'READY' }
   }
   return { text: '진행 상태를 확인하지 못했어요', canGenerate: false }
