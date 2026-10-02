@@ -2,7 +2,6 @@ import { useMutation, useQueryClient, type InfiniteData } from "@tanstack/react-
 import { api } from "@/shared/api/client"
 import type { ChatMessageDto, ChatRoomMessagesResponse, SendMessageResult } from "../types"
 import { chatMessagesQueryKey } from "./useChatMessages"
-import { chatRoomListQueryKey } from "./useChatRoomList"
 
 export interface SendMessageRequest {
   type: "TEXT"
@@ -12,11 +11,9 @@ export interface SendMessageRequest {
 /**
  * 메시지 보내기 — `POST /chats/{roomId}/messages` · docs/chat_api.md §4
  *
- * 응답(성공 후)을 캐시 맨 앞에 넣는다. 뒤이어 오는 소켓 MESSAGE_CREATED는
- * useChatRoomSocket이 messageId로 중복 판단해 무시하므로 같은 모양으로 짰다.
- *
- * 목록 화면(ChatListPage) 소켓 연동은 별도 이슈로 아직 없어, 대신 여기서 목록을
- * 무효화한다.
+ * 소켓 MESSAGE_CREATED가 뒤이어 와도 중복 안 되도록 messageId 기준으로
+ * useChatRoomSocket과 같은 캐시 모양을 쓴다.
+ * 목록 갱신은 ROOM_UPDATED(useChatListSocket)가 하므로 여기선 안 한다(중복 제거).
  */
 export function useSendMessage(roomId: number) {
   const queryClient = useQueryClient()
@@ -39,7 +36,6 @@ export function useSendMessage(roomId: number) {
           }
         },
       )
-      queryClient.invalidateQueries({ queryKey: chatRoomListQueryKey })
     },
   })
 }
