@@ -98,7 +98,7 @@ export type SuggestRepliesResult = components["schemas"]["SuggestRepliesDTO"]
 /**
  * 소켓 이벤트. docs/chat_socket.md §4. REST 스펙 밖이라 손으로 쓴다.
  * RoomUpdatedEvent/MemberLeftEvent는 개인 주소(/sub/users/{memberId})로 온다.
- * RoomUpdatedEvent.lastMessage는 type 필드가 없어 기존 값과 병합해야 한다.
+ * RoomUpdatedEvent.lastMessage는 GET /chats의 lastMessage와 모양이 같다.
  */
 
 export interface MessageCreatedEvent {
@@ -118,7 +118,7 @@ export interface MessageReadEvent {
 
 export interface RoomUpdatedEvent {
   roomId: number
-  lastMessage: { messageId: number; content: string; sentAt: string }
+  lastMessage: ChatLastMessage
   unreadCount: number
 }
 

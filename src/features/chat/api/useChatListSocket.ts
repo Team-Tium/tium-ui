@@ -39,8 +39,7 @@ export function useChatListSocket() {
                   room.roomId === data.roomId
                     ? {
                         ...room,
-                        // ROOM_UPDATED의 lastMessage는 type이 없어, 기존 값을 베이스로 병합한다
-                        lastMessage: { ...room.lastMessage, ...data.lastMessage },
+                        lastMessage: data.lastMessage,
                         unreadCount: data.unreadCount,
                       }
                     : room,
