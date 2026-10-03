@@ -30,7 +30,8 @@ export function useToggleHeart() {
                     ? {
                         ...feed,
                         heart: result.heart ?? feed.heart,
-                        heartYn: result.heartYn ?? feed.heartYn,
+                        // 응답에 상태가 빠져 와도 요청은 성공했으니 눌렀던 상태를 뒤집는다.
+                        heartYn: result.heartYn ?? (feed.heartYn === 'Y' ? 'N' : 'Y'),
                       }
                     : feed,
                 ),
@@ -39,8 +40,8 @@ export function useToggleHeart() {
           : old,
       )
 
-      // 목록 말고 하트 수를 보여주는 다른 피드 캐시는 새로 받는다.
-      return queryClient.invalidateQueries({
+      // 목록 말고 하트 수를 보여주는 다른 피드 캐시는 새로 받는다. 다 받을 때까지 버튼을 막지 않는다.
+      void queryClient.invalidateQueries({
         queryKey: feedKeys.all,
         predicate: ({ queryKey }) => queryKey[1] !== 'list',
       })
