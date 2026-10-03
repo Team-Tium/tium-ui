@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { useAuth } from '@/app/providers/auth-context'
+import { useChatListSocket } from '@/features/chat/api/useChatListSocket'
 import { RequireAuth, RequireOnboarding } from './guards'
 
 // 라우트 단위로 잘라서 내려받는다. 49화면을 한 덩어리로 만들지 않는다.
@@ -55,6 +56,8 @@ const SuggestPage = lazy(() => import('@/features/my/pages/SuggestPage'))
 
 export function AppRouter() {
   const { isAuthenticated } = useAuth()
+  // 채팅 목록 갱신은 목록 화면이 아니어도 받아야 한다. 방에서 보내고 읽은 것도 목록에 반영돼야 하기 때문이다.
+  useChatListSocket()
 
   return (
     <BrowserRouter>
