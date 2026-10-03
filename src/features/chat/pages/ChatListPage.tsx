@@ -3,6 +3,10 @@ import { ChatListItem } from "../components/ChatListItem"
 import { ListState } from "@/shared/components/ListState"
 import { useInfiniteScrollTrigger } from "@/shared/hooks/useInfiniteScrollTrigger"
 
+/**
+ * 최근 채팅 목록 — / · docs/ia.md 3절 (Chat page 1)
+ * 실시간 갱신(useChatListSocket)은 방에 있을 때도 받아야 해서 라우터에서 건다.
+ */
 export default function ChatListPage() {
   const { data: chats, isPending, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useChatRoomList()

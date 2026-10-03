@@ -1,17 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient, type InfiniteData } from "@tanstack/react-query"
 import { api } from "@/shared/api/client"
-import type { ReadReceiptResult } from "../types"
 import { chatRoomListQueryKey } from "./useChatRoomList"
+import type { ChatRoomListResponse, ReadReceiptResult } from "../types"
 
 /**
  * 읽음 처리 — `PATCH /chats/{roomId}/read-receipts` · docs/chat_api.md §6
- *
- * "방을 보고 있을 때만" 호출하라는 규칙은 ChatRoomPage가 떠 있는 동안만
- * 이 훅이 호출되는 구조로 이미 충족된다.
- *
- * 목록 화면(ChatListPage) 소켓 연동은 별도 이슈로 아직 없어, 대신 여기서 목록을
- * 무효화한다.
- * TODO: 목록 소켓 연동 끝나면 여기 invalidateQueries가 중복인지 확인.
+ * 읽음 처리 후에는 ROOM_UPDATED가 오지 않아, 목록의 안 읽은 수는 응답을 받고 직접 0으로 바꾼다.
  */
 export function useReadReceipt(roomId: number) {
   const queryClient = useQueryClient()
@@ -20,7 +14,19 @@ export function useReadReceipt(roomId: number) {
     mutationFn: (lastReadMessageId: number) =>
       api.patch<ReadReceiptResult>(`/chats/${roomId}/read-receipts`, { lastReadMessageId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: chatRoomListQueryKey })
+      queryClient.setQueryData<InfiniteData<ChatRoomListResponse, number | undefined>>(
+        chatRoomListQueryKey,
+        (old) =>
+          old && {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              rooms: page.rooms.map((room) =>
+                room.roomId === roomId ? { ...room, unreadCount: 0 } : room,
+              ),
+            })),
+          },
+      )
     },
   })
 }
