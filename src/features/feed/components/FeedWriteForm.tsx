@@ -13,7 +13,7 @@ const schema = z.object({
 
 type FeedWriteValues = z.infer<typeof schema>
 
-/** 피드 작성. 등록하면 피드 목록으로 가서 방금 쓴 글을 맨 위에서 보여준다. */
+/** 피드 작성. 등록하면 들어온 화면으로 돌아간다. 피드 목록은 새로 받아 방금 쓴 글이 맨 위에 보인다. */
 export function FeedWriteForm() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -29,11 +29,12 @@ export function FeedWriteForm() {
     defaultValues: { content: '' },
   })
 
-  // 직접 주소로 들어오면 돌아갈 기록이 없다.
-  const goBack = () => (location.key === 'default' ? navigate('/people') : navigate(-1))
+  // 직접 주소로 들어오면 돌아갈 기록이 없으니 이 화면을 피드 목록으로 바꾼다.
+  const goBack = () =>
+    location.key === 'default' ? navigate('/people', { replace: true }) : navigate(-1)
 
   const onSubmit = ({ content }: FeedWriteValues) => {
-    mutate({ content }, { onSuccess: () => navigate('/people', { replace: true }) })
+    mutate({ content }, { onSuccess: goBack })
   }
 
   return (

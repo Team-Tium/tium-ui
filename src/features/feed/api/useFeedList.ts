@@ -25,7 +25,12 @@ export function useFeedList(sort: FeedSort) {
       }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => (last.hasNext && last.nextCursor ? last.nextCursor : undefined),
-    staleTime: 0,
-    select: (data) => data.pages.flatMap((page) => (page.feeds ?? []).filter(hasFeedId)),
+    // 하트순은 페이지 사이에 하트 수가 바뀌면 같은 글이 다음 페이지에 또 올 수 있다. 처음 받은 것만 남긴다.
+    select: (data) => {
+      const seen = new Set<number>()
+      return data.pages
+        .flatMap((page) => (page.feeds ?? []).filter(hasFeedId))
+        .filter((feed) => !seen.has(feed.feedId) && seen.add(feed.feedId))
+    },
   })
 }
