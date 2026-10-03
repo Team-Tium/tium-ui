@@ -1,4 +1,10 @@
-/** 피드 작성 — /people/new · docs/ia.md */
+import { FeedWriteForm } from '../components/FeedWriteForm'
+
+/** 피드 작성 — /people/new */
 export default function FeedWritePage() {
-  return <p className="p-6">피드 작성</p>
+  return (
+    <div className="mx-auto max-w-md">
+      <FeedWriteForm />
+    </div>
+  )
 }
