@@ -215,7 +215,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["getFeeds"];
         put?: never;
         post: operations["createFeed"];
         delete?: never;
@@ -372,6 +372,22 @@ export interface paths {
          * @description 마지막 메시지 ID 내림차순으로 내려오며, 각 채팅방에 내 피드백 결과 존재 여부를 함께 내려준다.
          */
         get: operations["getFeedbackChats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feed/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMyFeeds"];
         put?: never;
         post?: never;
         delete?: never;
@@ -891,6 +907,45 @@ export interface components {
             /** Format: int64 */
             nextCursor?: number;
         };
+        ApiResponseFeedListDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["FeedListDTO"];
+        };
+        FeedListDTO: {
+            feeds?: components["schemas"]["FeedListItemDTO"][];
+            hasNext?: boolean;
+            nextCursor?: string;
+        };
+        FeedListItemDTO: {
+            /** Format: int64 */
+            feedId?: number;
+            member?: components["schemas"]["MemberDTO"];
+            content?: string;
+            /** Format: int64 */
+            fileId?: number;
+            /** Format: int64 */
+            heart?: number;
+            heartYn?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        MemberDTO: {
+            /**
+             * Format: int64
+             * @description 회원 ID
+             * @example 15
+             */
+            userId?: number;
+            /**
+             * @description 회원 닉네임. member.name을 사용
+             * @example 김티움
+             */
+            nickname?: string;
+            /** @description 프로필 이미지 URL. 업로드 경로 미정이라면 현재는 null */
+            profileImageUrl?: string;
+        };
         ApiResponseListFeedHeartHistoryDTO: {
             isSuccess?: boolean;
             code?: string;
@@ -1323,6 +1378,29 @@ export interface operations {
             };
         };
     };
+    getFeeds: {
+        parameters: {
+            query?: {
+                sort?: "LATEST" | "HEART";
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseFeedListDTO"];
+                };
+            };
+        };
+    };
     createFeed: {
         parameters: {
             query?: never;
@@ -1668,6 +1746,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseRecentFeedbackChatListDTO"];
+                };
+            };
+        };
+    };
+    getMyFeeds: {
+        parameters: {
+            query?: {
+                sort?: "LATEST" | "HEART";
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseFeedListDTO"];
                 };
             };
         };
