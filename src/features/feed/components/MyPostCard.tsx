@@ -1,4 +1,4 @@
-import { Heart } from 'lucide-react'
+import { Heart, Trash2 } from 'lucide-react'
 
 import { Button } from '@/shared/components/ui/button'
 import { formatTimeAgo } from '@/shared/lib/formatTimeAgo'
@@ -7,10 +7,11 @@ import type { FeedListItem } from '../types'
 type Props = {
   feed: FeedListItem
   onOpenHearts: (feedId: number) => void
+  onDelete: (feedId: number) => void
 }
 
-/** 내 글 하나. 하트 수와 "친구 확인" 버튼이 있다. */
-export function MyPostCard({ feed, onOpenHearts }: Props) {
+/** 내 글 하나. 하트 수, 삭제 버튼, "친구 확인" 버튼이 있다. */
+export function MyPostCard({ feed, onOpenHearts, onDelete }: Props) {
   const timeAgo = feed.createdAt ? formatTimeAgo(feed.createdAt) : ''
 
   return (
@@ -27,9 +28,18 @@ export function MyPostCard({ feed, onOpenHearts }: Props) {
         </span>
         {timeAgo && <time className="text-muted-foreground text-xs">{timeAgo}</time>}
         <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="삭제"
+          className="text-muted-foreground ml-auto"
+          onClick={() => onDelete(feed.feedId)}
+        >
+          <Trash2 className="size-4" />
+        </Button>
+        <Button
           variant="outline"
           size="sm"
-          className="ml-auto rounded-full px-3"
+          className="rounded-full px-3"
           onClick={() => onOpenHearts(feed.feedId)}
         >
           친구 확인
