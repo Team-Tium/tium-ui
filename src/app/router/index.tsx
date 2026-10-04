@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { useAuth } from '@/app/providers/auth-context'
+import { useChatListSocket } from '@/features/chat/api/useChatListSocket'
 import { RequireAuth, RequireOnboarding } from './guards'
 
 // 라우트 단위로 잘라서 내려받는다. 49화면을 한 덩어리로 만들지 않는다.
@@ -23,6 +24,8 @@ const VideoCallReadyPage = lazy(() => import('@/features/call/pages/VideoCallRea
 const VideoCallWaitingPage = lazy(() => import('@/features/call/pages/VideoCallWaitingPage'))
 const VideoCallPage = lazy(() => import('@/features/call/pages/VideoCallPage'))
 const CallEndPage = lazy(() => import('@/features/call/pages/CallEndPage'))
+// 통화 중 화면과 종료 화면 사이에서 녹음 파일을 들고 있는 부모 라우트
+const CallSessionBoundary = lazy(() => import('@/features/call/components/CallSessionBoundary'))
 // 착신 팝업. 어느 화면에 있든 전화가 오면 떠야 해서 라우트 밖에 둔다. docs/ia.md 4절
 const IncomingCallModal = lazy(() => import('@/features/call/components/IncomingCallModal'))
 
@@ -38,10 +41,9 @@ const RandomCallEndPage = lazy(() => import('@/features/random/pages/RandomCallE
 const FeedListPage = lazy(() => import('@/features/feed/pages/FeedListPage'))
 const MyPostsPage = lazy(() => import('@/features/feed/pages/MyPostsPage'))
 const FeedWritePage = lazy(() => import('@/features/feed/pages/FeedWritePage'))
-const FriendListPage = lazy(() => import('@/features/feed/pages/FriendListPage'))
 
 const FeedbackListPage = lazy(() => import('@/features/feedback/pages/FeedbackListPage'))
-const FeedbackDetailPage = lazy(() => import('@/features/feedback/pages/FeedbackDetailPage'))
+const CallFeedbackDetailPage = lazy(() => import('@/features/feedback/pages/CallFeedbackDetailPage'))
 
 const MyPage = lazy(() => import('@/features/my/pages/MyPage'))
 const MyVerifyPage = lazy(() => import('@/features/my/pages/MyVerifyPage'))
@@ -53,6 +55,8 @@ const SuggestPage = lazy(() => import('@/features/my/pages/SuggestPage'))
 
 export function AppRouter() {
   const { isAuthenticated } = useAuth()
+  // 채팅 목록 갱신은 목록 화면이 아니어도 받아야 한다. 방에서 보내고 읽은 것도 목록에 반영돼야 하기 때문이다.
+  useChatListSocket()
 
   return (
     <BrowserRouter>
@@ -76,10 +80,9 @@ export function AppRouter() {
                 <Route path="/people" element={<FeedListPage />} />
                 <Route path="/people/my-posts" element={<MyPostsPage />} />
                 <Route path="/people/new" element={<FeedWritePage />} />
-                <Route path="/people/friends" element={<FriendListPage />} />
 
                 <Route path="/feedback" element={<FeedbackListPage />} />
-                <Route path="/feedback/:id" element={<FeedbackDetailPage />} />
+                <Route path="/feedback/call/:callId" element={<CallFeedbackDetailPage />} />
 
                 <Route path="/my" element={<MyPage />} />
                 <Route path="/my/verify" element={<MyVerifyPage />} />
@@ -93,11 +96,13 @@ export function AppRouter() {
               {/* 탭바가 없는 화면 — 통화 */}
               <Route path="/call/voice/:roomId/ready" element={<VoiceCallReadyPage />} />
               <Route path="/call/voice/:roomId/waiting" element={<VoiceCallWaitingPage />} />
-              <Route path="/call/voice/:callId" element={<VoiceCallPage />} />
               <Route path="/call/video/:roomId/ready" element={<VideoCallReadyPage />} />
               <Route path="/call/video/:roomId/waiting" element={<VideoCallWaitingPage />} />
               <Route path="/call/video/:roomId" element={<VideoCallPage />} />
-              <Route path="/call/:callId/end" element={<CallEndPage />} />
+              <Route element={<CallSessionBoundary />}>
+                <Route path="/call/voice/:callId" element={<VoiceCallPage />} />
+                <Route path="/call/:callId/end" element={<CallEndPage />} />
+              </Route>
 
               {/* 탭바가 없는 화면 — 랜덤 대화 */}
               <Route path="/random" element={<RandomEntryPage />} />

@@ -1,11 +1,12 @@
-import { useLocation, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
 
 import { CallControls } from '../components/CallControls'
 import { CallProfile } from '../components/CallProfile'
 import { HangUpButton } from '../components/HangUpButton'
+import { useCallSession } from '../hooks/useCallSession'
 import { useVoiceCall } from '../hooks/useVoiceCall'
 import { formatCallDuration } from '../lib/formatCallDuration'
-import type { CallPhase, VoiceCallRouteState } from '../types'
+import type { CallPhase, RecordingOutcome, VoiceCallRouteState } from '../types'
 
 const STATUS_TEXT: Record<CallPhase, string> = {
   connecting: '연결 중',
@@ -18,29 +19,36 @@ const STATUS_TEXT: Record<CallPhase, string> = {
  * 음성 통화 화면 — /call/voice/:callId · docs/ia.md 4절
  *
  * 대기 화면(거는 쪽)이나 착신 팝업(받는 쪽)이 넘겨준 값으로 연다.
- * 넘겨받은 값이 없으면 받는 쪽으로 본다.
+ * 넘겨받은 값이 없거나 새로고침으로 다시 들어왔으면 통화를 다시 걸지 않고 종료 화면으로 보낸다.
  */
 export default function VoiceCallPage() {
   const callId = Number(useParams().callId)
   const state = useLocation().state as VoiceCallRouteState | null
+  const { completeRecording } = useCallSession()
+
+  if (!state || state.sessionOrigin !== performance.timeOrigin) {
+    return <Navigate to={`/call/${callId}/end`} replace />
+  }
 
   return (
     <VoiceCall
       // 다른 통화로 옮겨가면 연결을 새로 만든다.
       key={callId}
       callId={callId}
-      isCaller={state?.isCaller ?? false}
-      opponentName={state?.opponentName ?? ''}
-      roomId={state?.roomId}
+      {...state}
+      onRecordingDone={(outcome) => completeRecording(callId, outcome)}
     />
   )
 }
 
-function VoiceCall({ callId, ...options }: VoiceCallRouteState & { callId: number }) {
-  const { phase, muted, elapsedSec, toggleMute, hangUp, remoteAudioRef } = useVoiceCall(
-    callId,
-    options,
-  )
+type VoiceCallProps = VoiceCallRouteState & {
+  callId: number
+  onRecordingDone: (outcome: RecordingOutcome) => void
+}
+
+function VoiceCall({ callId, ...options }: VoiceCallProps) {
+  const { phase, muted, elapsedSec, recordingFailed, toggleMute, hangUp, remoteAudioRef } =
+    useVoiceCall(callId, options)
 
   return (
     <div className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-between pb-12">
@@ -54,6 +62,11 @@ function VoiceCall({ callId, ...options }: VoiceCallRouteState & { callId: numbe
       </CallProfile>
 
       <div className="flex flex-col items-center gap-8">
+        {recordingFailed && (
+          <p className="text-muted-foreground px-5 text-center text-xs">
+            녹음이 되지 않아 이번 통화는 피드백을 만들 수 없어요
+          </p>
+        )}
         <CallControls muted={muted} onToggleMute={toggleMute} />
         <HangUpButton onClick={hangUp} disabled={phase === 'ended'} />
       </div>

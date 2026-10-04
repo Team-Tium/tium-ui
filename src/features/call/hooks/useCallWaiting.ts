@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { CALL_EVENT, socketDestination } from '@/shared/socket/events'
 import { useSubscription } from '@/shared/socket/useSubscription'
 import { useEndCall } from '../api/useEndCall'
-import type { CallEndRouteState, VoiceCallRouteState } from '../types'
+import type { CallAcceptedData, CallEndRouteState, VoiceCallRouteState } from '../types'
 
 /** 상대가 받지 않으면 이 시간 뒤에 끊는다. */
 const NO_ANSWER_MS = 30_000
@@ -28,9 +28,9 @@ export function useCallWaiting(callId: number, { opponentName, roomId }: Options
   const goToEnd = useCallback(() => {
     if (doneRef.current) return
     doneRef.current = true
-    const state: CallEndRouteState = { roomId }
+    const state: CallEndRouteState = { roomId, opponentName }
     navigate(`/call/${callId}/end`, { replace: true, state })
-  }, [callId, navigate, roomId])
+  }, [callId, navigate, opponentName, roomId])
 
   /** 수락 전에 끊는다. 서버가 CANCELED로 저장한다. */
   const cancel = useCallback(() => {
@@ -45,10 +45,19 @@ export function useCallWaiting(callId: number, { opponentName, roomId }: Options
   })
 
   useSubscription(socketDestination.call(callId), (event) => {
+    // 녹음 시작 시각의 기준이다. 받은 순간에 가장 가깝게 잡는다.
+    const receivedMonoMs = performance.now()
     if (event.type === CALL_EVENT.accepted) {
       if (doneRef.current) return
       doneRef.current = true
-      const state: VoiceCallRouteState = { isCaller: true, opponentName, roomId }
+      const { acceptedAt } = event.data as CallAcceptedData
+      const state: VoiceCallRouteState = {
+        isCaller: true,
+        opponentName,
+        roomId,
+        sessionOrigin: performance.timeOrigin,
+        acceptance: { acceptedAt, receivedMonoMs },
+      }
       navigate(`/call/voice/${callId}`, { replace: true, state })
       return
     }
