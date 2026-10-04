@@ -44,6 +44,7 @@ const FeedWritePage = lazy(() => import('@/features/feed/pages/FeedWritePage'))
 
 const FeedbackListPage = lazy(() => import('@/features/feedback/pages/FeedbackListPage'))
 const CallFeedbackDetailPage = lazy(() => import('@/features/feedback/pages/CallFeedbackDetailPage'))
+const ChatFeedbackDetailPage = lazy(() => import('@/features/feedback/pages/ChatFeedbackDetailPage'))
 
 const MyPage = lazy(() => import('@/features/my/pages/MyPage'))
 const MyVerifyPage = lazy(() => import('@/features/my/pages/MyVerifyPage'))
@@ -83,6 +84,7 @@ export function AppRouter() {
 
                 <Route path="/feedback" element={<FeedbackListPage />} />
                 <Route path="/feedback/call/:callId" element={<CallFeedbackDetailPage />} />
+                <Route path="/feedback/chat/:roomId" element={<ChatFeedbackDetailPage />} />
 
                 <Route path="/my" element={<MyPage />} />
                 <Route path="/my/verify" element={<MyVerifyPage />} />
