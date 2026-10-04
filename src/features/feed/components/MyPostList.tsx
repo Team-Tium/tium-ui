@@ -8,10 +8,11 @@ import { MyPostCard } from './MyPostCard'
 type Props = {
   sort: FeedSort
   onOpenHearts: (feedId: number) => void
+  onDelete: (feedId: number) => void
 }
 
 /** 내 글 목록. 맨 아래에 닿으면 다음 페이지를 불러온다. */
-export function MyPostList({ sort, onOpenHearts }: Props) {
+export function MyPostList({ sort, onOpenHearts, onDelete }: Props) {
   const {
     data: feeds,
     isPending,
@@ -38,7 +39,7 @@ export function MyPostList({ sort, onOpenHearts }: Props) {
       emptyText={sort === 'HEART' ? '하트순으로 보여줄 글이 없어요.' : '아직 쓴 글이 없어요.'}
     >
       {feeds?.map((feed) => (
-        <MyPostCard key={feed.feedId} feed={feed} onOpenHearts={onOpenHearts} />
+        <MyPostCard key={feed.feedId} feed={feed} onOpenHearts={onOpenHearts} onDelete={onDelete} />
       ))}
 
       <div ref={sentinelRef} className="h-1" />

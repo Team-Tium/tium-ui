@@ -1,8 +1,11 @@
 import type { AcceptanceAnchor, RecordingFailure, RecordingOutcome } from '../types'
 import { makeStartedAt } from './recordingTime'
 
-/** 앞에서부터 먼저 되는 형식을 쓴다. 사파리는 mp4만 된다. */
-const MIME_TYPES = ['audio/mp4;codecs=mp4a.40.2', 'audio/webm;codecs=opus']
+/**
+ * 앞에서부터 먼저 되는 형식을 쓴다. 사파리 18.4 전은 mp4만 된다.
+ * 크롬은 mp4를 된다고 답하지만 실제로 녹음하면 바로 EncodingError가 나서 webm을 먼저 둔다.
+ */
+const MIME_TYPES = ['audio/webm;codecs=opus', 'audio/mp4;codecs=mp4a.40.2']
 const AUDIO_BITS_PER_SECOND = 32_000
 const CHUNK_MS = 1_000
 /** 모은 크기가 이것을 넘으면 녹음을 버린다. */
@@ -31,6 +34,7 @@ function pickMimeType(): string | null {
  */
 export function createLocalRecording(stream: MediaStream, { callId, onFailed }: Options) {
   let recorder: MediaRecorder | null = null
+  let mimeType = ''
   let startedAt = ''
   const chunks: Blob[] = []
   let size = 0
@@ -77,7 +81,8 @@ export function createLocalRecording(stream: MediaStream, { callId, onFailed }: 
     if (failure) return { kind: 'failed', reason: failure }
     if (!stopped) return { kind: 'failed', reason: 'recorder' }
 
-    const type = rec.mimeType || MIME_TYPES[0]
+    // 녹음기가 형식을 비워 두면 고른 형식으로 본다.
+    const type = rec.mimeType || mimeType
     const blob = new Blob(chunks, { type })
     chunks.length = 0
     if (blob.size === 0) return { kind: 'failed', reason: 'empty' }
@@ -91,11 +96,12 @@ export function createLocalRecording(stream: MediaStream, { callId, onFailed }: 
     start(anchor: AcceptanceAnchor): boolean {
       if (recorder || failure) return false
 
-      const mimeType = pickMimeType()
-      if (!mimeType) {
+      const picked = pickMimeType()
+      if (!picked) {
         fail('unsupported')
         return false
       }
+      mimeType = picked
       try {
         const rec = new MediaRecorder(stream, {
           mimeType,
