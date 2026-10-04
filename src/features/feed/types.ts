@@ -14,3 +14,8 @@ export type FeedListItem = Schemas['FeedListItemDTO'] & { feedId: number }
 export type CreateFeedRequest = Schemas['FeedDTO']
 export type FeedResult = Schemas['FeedResultDTO']
 export type FeedHeartResult = Schemas['FeedHeartResultDTO']
+
+/** 하트 기록 한 줄. 누구의 기록인지(내 글에 달린 하트로 본다)는 서버 확인 전이다. */
+export type FeedHeartHistory = Schemas['FeedHeartHistoryDTO']
+
+export type CreateChatRoomResult = Schemas['CreateRoomResultDTO']

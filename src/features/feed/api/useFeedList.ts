@@ -10,16 +10,17 @@ function hasFeedId(feed: NonNullable<FeedListPage['feeds']>[number]): feed is Fe
 }
 
 /**
- * 피드 목록 — `GET /api/v1/feed`
+ * 피드 목록 — `GET /api/v1/feed`, 내 글 목록 — `GET /api/v1/feed/me`
  *
  * 커서 기반 무한 스크롤. 페이지 크기는 서버가 정한다(첫 페이지 6개, 다음부터 3개).
  * 커서 안에 정렬이 들어 있어서 정렬마다 키를 나눠 처음부터 다시 받는다.
+ * 두 목록은 응답 모양과 쿼리 파라미터가 같다.
  */
-export function useFeedList(sort: FeedSort) {
+export function useFeedList(sort: FeedSort, { mine = false }: { mine?: boolean } = {}) {
   return useInfiniteQuery({
-    queryKey: feedKeys.list(sort),
+    queryKey: mine ? feedKeys.myList(sort) : feedKeys.list(sort),
     queryFn: ({ pageParam, signal }) =>
-      api.get<FeedListPage>('/api/v1/feed', {
+      api.get<FeedListPage>(mine ? '/api/v1/feed/me' : '/api/v1/feed', {
         params: { sort, ...(pageParam !== undefined ? { cursor: pageParam } : {}) },
         signal,
       }),

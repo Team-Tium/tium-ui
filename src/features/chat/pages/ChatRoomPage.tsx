@@ -126,7 +126,7 @@ export default function ChatRoomPage() {
   const isInputDisabled = isPending || isError || (data?.opponentLeft ?? true)
 
   return (
-    <div className="mx-auto flex h-svh max-w-md flex-col">
+    <div className="mx-auto flex h-[calc(100svh-4rem)] max-w-md flex-col">
       <ChatRoomHeader
         nickname={data?.opponent.nickname ?? "채팅방"}
         avatarUrl={data?.opponent.profileImageUrl ?? ""}
