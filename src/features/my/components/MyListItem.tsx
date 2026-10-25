@@ -31,7 +31,7 @@ export function MyListItem({
       {expandable && (expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />)}
     </>
   )
-  const className = "flex min-h-[72px] items-center justify-between px-4"
+  const className = "flex min-h-18 items-center justify-between px-4"
 
   if (to) {
     return (
