@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { ChevronLeft, Menu, Phone, Sparkles } from "lucide-react"
 import { Button } from "@/shared/components/ui/button"
+import { Avatar } from "@/shared/components/Avatar"
 
 interface ChatRoomHeaderProps {
   nickname: string
@@ -21,14 +22,7 @@ export function ChatRoomHeader({
     <div className="flex items-center justify-between border-b border-border px-4 py-3">
       <div className="flex items-center gap-2">
         <Link to="/" className="text-muted-foreground"><ChevronLeft /></Link>
-        <img
-          src={avatarUrl}
-          alt={nickname}
-          loading="lazy"
-          width={32}
-          height={32}
-          className="h-8 w-8 rounded-full object-cover bg-muted"
-        />
+        <Avatar src={avatarUrl} size={32} />
         <span className="font-medium">{nickname}</span>
       </div>
       <div className="flex items-center gap-3">

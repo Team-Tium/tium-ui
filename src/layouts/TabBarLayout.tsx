@@ -18,7 +18,7 @@ export default function TabBarLayout() {
 
   return (
     <div className="flex min-h-svh flex-col">
-      <main className="flex-1 pb-16">
+      <main className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom))]">
         {/* 라우트 레벨 경계. 화면 하나가 터져도 아래 탭바는 살아 있다.
             key 를 주소로 두어 다른 화면으로 옮기면 다시 시도된다. */}
         <ErrorBoundary
@@ -38,7 +38,7 @@ export default function TabBarLayout() {
         </ErrorBoundary>
       </main>
 
-      <nav className="bg-card border-border fixed inset-x-0 bottom-0 z-10 mx-auto flex h-16 max-w-md border-t">
+      <nav className="bg-card/95 border-border fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md border-t pb-[env(safe-area-inset-bottom)] backdrop-blur">
         {TABS.map(({ to, label, Icon }) => (
           <NavLink
             key={to}
@@ -46,13 +46,17 @@ export default function TabBarLayout() {
             end={to === '/'}
             className={({ isActive }) =>
               cn(
-                'flex flex-1 flex-col items-center justify-center gap-1 text-xs',
-                isActive ? 'text-primary font-medium' : 'text-muted-foreground',
+                'flex h-16 flex-1 flex-col items-center justify-center gap-1 text-xs transition-colors',
+                isActive ? 'text-primary font-bold' : 'text-muted-foreground font-medium',
               )
             }
           >
-            <Icon className="size-5" />
-            {label}
+            {({ isActive }) => (
+              <>
+                <Icon className="size-6" strokeWidth={isActive ? 2.4 : 1.8} />
+                {label}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>

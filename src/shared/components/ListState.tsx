@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { AlertCircle, Inbox, Loader2 } from "lucide-react"
 
 interface ListStateProps {
   isLoading: boolean
@@ -24,13 +25,46 @@ export function ListState({
   children,
 }: ListStateProps) {
   if (isLoading) {
-    return <div className="p-8 text-center text-sm text-muted-foreground">{loadingText}</div>
+    return (
+      <div role="status" className="flex flex-col items-center gap-3 px-6 py-16">
+        <Loader2 className="text-primary size-7 animate-spin" />
+        <p className="text-caption text-muted-foreground">{loadingText}</p>
+      </div>
+    )
   }
   if (isError) {
-    return <div className="p-8 text-center text-sm text-muted-foreground">{errorText}</div>
+    return (
+      <StateMessage icon={<AlertCircle />} iconClassName="bg-destructive/10 text-destructive">
+        {errorText}
+      </StateMessage>
+    )
   }
   if (isEmpty) {
-    return <div className="p-8 text-center text-sm text-muted-foreground">{emptyText}</div>
+    return (
+      <StateMessage icon={<Inbox />} iconClassName="bg-secondary text-primary">
+        {emptyText}
+      </StateMessage>
+    )
   }
   return <>{children}</>
+}
+
+/** 동그란 아이콘 + 문구. 빈 화면과 에러 화면이 같이 쓴다. */
+function StateMessage({
+  icon,
+  iconClassName,
+  children,
+}: {
+  icon: ReactNode
+  iconClassName: string
+  children: ReactNode
+}) {
+  return (
+    <div className="flex flex-col items-center gap-4 px-6 py-16 text-center">
+      <div className={`grid size-14 place-items-center rounded-full [&_svg]:size-7 ${iconClassName}`}>
+        {icon}
+      </div>
+      <p className="text-body font-medium">{children}</p>
+    </div>
+  )
 }

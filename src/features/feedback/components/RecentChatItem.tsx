@@ -1,6 +1,7 @@
-import { ChevronRight, User } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
+import { Avatar } from '@/shared/components/Avatar'
 import { formatTimeAgo } from '@/shared/lib/formatTimeAgo'
 import { cn } from '@/shared/lib/utils'
 import { chatFeedbackHref } from '../api/chatFeedbackKeys'
@@ -28,20 +29,7 @@ export function RecentChatItem({ chat }: Props) {
       onClick={open}
       className="active:bg-muted/50 flex w-full items-center gap-3 px-4 py-3 text-left"
     >
-      {imageUrl ? (
-        <img
-          src={imageUrl}
-          alt={name}
-          loading="lazy"
-          width={48}
-          height={48}
-          className="bg-muted size-12 shrink-0 rounded-full object-cover"
-        />
-      ) : (
-        <span className="bg-muted text-muted-foreground flex size-12 shrink-0 items-center justify-center rounded-full">
-          <User className="size-6" />
-        </span>
-      )}
+      <Avatar src={imageUrl} size={48} />
 
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="flex items-baseline gap-2">

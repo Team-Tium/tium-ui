@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '@/app/providers/auth-context'
 import { SocialLoginButton } from '../components/SocialLoginButton'
+import { TiumLogo } from '../components/TiumLogo'
 import { PROVIDERS } from '../types'
 
 /**
@@ -57,21 +58,32 @@ export default function LoginPage() {
   const callbackError = (state as { error?: string } | null)?.error
 
   return (
-    <div className="mx-auto flex min-h-svh max-w-md flex-col justify-center gap-10 px-6">
-      <header className="text-center">
-        <p
-          className={`text-primary text-3xl font-bold tracking-tight ${devLogin ? 'cursor-pointer' : ''}`}
+    // 넓은 화면의 바깥 배경은 index.css 의 body 가 칠한다. 초록은 휴대폰 폭 칸 안에만 칠한다
+    <div className="bg-primary flex min-h-svh flex-col">
+      <header className="text-primary-foreground relative flex-1 overflow-hidden px-6 pt-14">
+        {/* 배경 장식. 작은 로고를 아래 오른쪽으로 잘리게 깔고, 글보다 먼저 그려 뒤에 둔다 */}
+        <TiumLogo className="text-primary-press pointer-events-none absolute -right-4 -bottom-6 text-[6rem] leading-none select-none" />
+
+        <span
+          className={`relative ${devLogin ? 'cursor-pointer' : ''}`}
           onDoubleClick={devLogin}
           title={devLogin ? '더블클릭: 개발용 로그인' : undefined}
         >
-          Tium
+          <TiumLogo className="text-4xl" />
+        </span>
+        <h1 className="text-display relative mt-10 font-bold">
+          말 한마디가
+          <br />
+          쉬워지는 곳
+        </h1>
+        <p className="text-body text-primary-foreground/75 relative mt-3">
+          통화가 끝나면 AI가 대화를 돌아봐 줘요
         </p>
-        <p className="text-muted-foreground mt-2 text-sm">말을 틔우다</p>
       </header>
 
-      <div className="flex flex-col gap-3">
+      <div className="bg-card relative flex flex-col gap-3 rounded-t-3xl px-6 pt-8 pb-10">
         {callbackError && (
-          <p role="alert" className="text-destructive mb-1 text-center text-sm">
+          <p role="alert" className="bg-destructive/10 text-destructive text-caption rounded-xl px-4 py-3 text-center">
             {callbackError}
           </p>
         )}

@@ -10,7 +10,7 @@ export function mapChatRoom(dto: ChatRoomDto): Chat | null {
     name: dto.opponent.nickname,
     lastMessage: dto.lastMessage?.content ?? "",
     time: dto.lastMessage ? formatRelativeTime(dto.lastMessage.sentAt) : "",
-    avatarUrl: dto.opponent.profileImageUrl ?? "/default-avatar.png", // TODO: 실제 기본 이미지 경로로 교체
+    avatarUrl: dto.opponent.profileImageUrl ?? "", // 비어 있으면 Avatar가 기본 사람 아이콘을 그린다
     unreadCount: dto.unreadCount ?? 0,
     opponentLeft: dto.opponentLeft,
   }

@@ -1,6 +1,7 @@
-import { Heart, User } from 'lucide-react'
+import { Heart } from 'lucide-react'
 
 import { Button } from '@/shared/components/ui/button'
+import { Avatar } from '@/shared/components/Avatar'
 import { formatTimeAgo } from '@/shared/lib/formatTimeAgo'
 import { cn } from '@/shared/lib/utils'
 import { useToggleHeart } from '../api/useToggleHeart'
@@ -21,20 +22,7 @@ export function FeedCard({ feed }: Props) {
   return (
     <article className="border-border flex flex-col gap-3 border-b px-4 py-4">
       <header className="flex items-center gap-3">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={nickname}
-            loading="lazy"
-            width={32}
-            height={32}
-            className="bg-muted size-8 shrink-0 rounded-full object-cover"
-          />
-        ) : (
-          <span className="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full">
-            <User className="size-4" />
-          </span>
-        )}
+        <Avatar src={imageUrl} size={32} />
         <span className="truncate text-sm font-medium">{nickname}</span>
         {timeAgo && <time className="text-muted-foreground ml-auto text-xs">{timeAgo}</time>}
       </header>

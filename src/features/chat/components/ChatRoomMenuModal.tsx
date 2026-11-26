@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { X } from "lucide-react"
 import { Button } from "@/shared/components/ui/button"
+import { Avatar } from "@/shared/components/Avatar"
 import { LeaveRoomConfirmModal } from "./LeaveRoomConfirmModal"
 
 interface ChatRoomMenuModalProps {
@@ -51,14 +52,7 @@ export function ChatRoomMenuModal({
           </div>
 
           <div className="flex flex-1 flex-col items-center justify-center gap-24 px-4 py-8">
-            <img
-              src={opponentAvatarUrl}
-              alt={opponentNickname}
-              loading="lazy"
-              width={96}
-              height={96}
-              className="h-24 w-24 rounded-full object-cover bg-muted"
-            />
+            <Avatar src={opponentAvatarUrl} alt={opponentNickname} size={96} />
 
             <div className="flex w-full flex-col gap-4">
               <Button
