@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom"
+import { Avatar } from "@/shared/components/Avatar"
 
 import type { Chat } from "../types"
 
@@ -13,14 +14,7 @@ export function ChatListItem({ chat }: ChatListItemProps) {
       className="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-muted/50"
       onClick={() => navigate(`/chat/${chat.id}`)}
     >
-      <img
-        src={chat.avatarUrl}
-        alt={chat.name}
-        loading="lazy"
-        width={48}
-        height={48}
-        className="h-12 w-12 shrink-0 rounded-full object-cover bg-muted"
-      />
+      <Avatar src={chat.avatarUrl} alt={chat.name} size={48} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="font-medium">{chat.name}</span>

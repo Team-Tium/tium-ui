@@ -8,7 +8,7 @@ import { useChatRoomSocket } from "../api/useChatRoomSocket"
 import { useChatRoomRecovery } from "../api/useChatRoomRecovery"
 import { useChatRecommendations } from "../api/useChatRecommendations"
 import { ChatRoomHeader } from "../components/ChatRoomHeader"
-import { ChatMessageBubble } from "../components/ChatMessageBubble"
+import { ChatMessageList } from "../components/ChatMessageList"
 import { ChatInputBar } from "../components/ChatInputBar"
 import { ChatRoomMenuModal } from "../components/ChatRoomMenuModal"
 import { CallStartModal } from "@/shared/components/CallStartModal"
@@ -149,18 +149,9 @@ export default function ChatRoomPage() {
           {isFetchingNextPage && (
             <div className="py-2 text-center text-xs text-muted-foreground">불러오는 중...</div>
           )}
-          {data?.messages.map((message, index) => {
-            const prevMessage = data.messages[index - 1]
-            const showAvatar = !message.mine && (!prevMessage || prevMessage.mine)
-            return (
-              <ChatMessageBubble
-                key={message.id}
-                message={message}
-                avatarUrl={data.opponent.profileImageUrl}
-                showAvatar={showAvatar}
-              />
-            )
-          })}
+          {data && (
+            <ChatMessageList messages={data.messages} avatarUrl={data.opponent.profileImageUrl} />
+          )}
           <div ref={bottomRef} />
         </ListState>
       </div>

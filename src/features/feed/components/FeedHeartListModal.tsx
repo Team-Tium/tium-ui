@@ -1,7 +1,8 @@
-import { Send, User, X } from 'lucide-react'
+import { Send, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 import { ApiError } from '@/shared/api/types'
+import { Avatar } from '@/shared/components/Avatar'
 import { ListState } from '@/shared/components/ListState'
 import { Button } from '@/shared/components/ui/button'
 import { formatTimeAgo } from '@/shared/lib/formatTimeAgo'
@@ -92,9 +93,7 @@ export function FeedHeartListModal({ feedId, onClose }: Props) {
             <ul className="divide-border divide-y">
               {hearts.map((heart) => (
                 <li key={heart.memberId} className="flex items-center gap-3 px-4 py-3">
-                  <span className="bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-full">
-                    <User className="size-5" />
-                  </span>
+                  <Avatar size={40} />
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="text-sm font-medium">익명의 친구</span>
                     {heart.heartedAt && (

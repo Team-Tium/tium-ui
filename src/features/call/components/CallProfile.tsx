@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
-import { ChevronDown, UserRound } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
+
+import { Avatar } from '@/shared/components/Avatar'
 
 import { CallLogo } from './CallLogo'
 
@@ -23,9 +25,7 @@ export function CallProfile({ status, name, children }: CallProfileProps) {
 
       <div className="mt-4 flex flex-col items-center gap-4">
         <div className="border-border/60 rounded-full border-4 p-1">
-          <div className="bg-border text-muted-foreground flex size-24 items-center justify-center rounded-full">
-            <UserRound className="size-12" aria-hidden />
-          </div>
+          <Avatar size={96} />
         </div>
         <p className="text-lg font-medium">{name}</p>
         {children}

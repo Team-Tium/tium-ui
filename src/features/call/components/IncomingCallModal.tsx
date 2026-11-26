@@ -19,7 +19,7 @@ export default function IncomingCallModal() {
       role="dialog"
       aria-modal="true"
       aria-label={`${incoming.callerName}님의 전화`}
-      className="bg-background fixed inset-0 z-50"
+      className="bg-background fixed inset-0 z-50 mx-auto max-w-md"
     >
       <div className="mx-auto flex h-full max-w-md flex-col items-center justify-between pb-16">
         <CallProfile status="통화 수신 중" name={incoming.callerName} />

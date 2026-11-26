@@ -34,6 +34,7 @@
   --secondary-foreground: #0a6349;
   --accent: #ffb020;            /* Accent */
   --accent-foreground: #111a15;
+  --accent-soft: #fff4de;       /* Accent를 옅게 깐 바탕. 칭찬·하이라이트 카드용 */
 
   /* 흐린 것 */
   --muted: #e1f1ea;             /* 시안에 배경용 회색이 없어 Sub를 재사용했다 */
@@ -58,7 +59,7 @@
   --metric-logic: #7c5cff;         /* 논리성 */
   --metric-understanding: #0f8a66; /* 이해력 */
 
-  --radius: 0.625rem;
+  --radius: 0.875rem;
 }
 
 /* CSS 변수를 Tailwind 클래스로 연결한다. Tailwind v4라서 이 블록이 설정 파일을 대신한다.
@@ -76,6 +77,7 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-card: var(--card);
@@ -92,6 +94,23 @@
   --color-metric-kindness: var(--metric-kindness);
   --color-metric-logic: var(--metric-logic);
   --color-metric-understanding: var(--metric-understanding);
+
+  /* 글자 크기 5단계. 굵기는 클래스로 따로 준다 (font-bold 등).
+     display: 첫 화면 큰 문구 / title: 페이지 제목 / heading: 헤더·섹션 제목
+     body: 본문 / caption: 보조 설명·메타 정보 */
+  --text-display: 1.75rem;
+  --text-display--line-height: 1.35;
+  --text-title: 1.375rem;
+  --text-title--line-height: 1.4;
+  --text-heading: 1.0625rem;
+  --text-heading--line-height: 1.45;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.6;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.5;
+
+  /* 카드가 바탕 위에 살짝 떠 보이게 하는 그림자. 테두리 대신 쓴다 */
+  --shadow-card: 0 1px 2px rgb(17 26 21 / 0.04), 0 4px 16px rgb(17 26 21 / 0.06);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -112,7 +131,13 @@
     letter-spacing: -0.02em; /* 자간 -2% */
   }
 
+  /* 앱은 휴대폰 폭(max-w-md) 한 칸이다. 넓은 화면에서는 바깥을 짙은 잉크색으로 칠해 그 칸이 떠 보이게 한다.
+     휴대폰 폭에서는 바깥이 안 보이므로 밝은 색을 둔다(iOS에서 끌어당길 때 보이는 바탕). */
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground min-[28rem]:bg-foreground;
+  }
+
+  #root {
+    @apply bg-background mx-auto min-h-svh max-w-md;
   }
 }

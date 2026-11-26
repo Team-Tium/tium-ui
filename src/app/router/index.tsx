@@ -50,6 +50,7 @@ const MyPage = lazy(() => import('@/features/my/pages/MyPage'))
 const MyVerifyPage = lazy(() => import('@/features/my/pages/MyVerifyPage'))
 const ProfileEditPage = lazy(() => import('@/features/my/pages/ProfileEditPage'))
 const ReportPage = lazy(() => import('@/features/my/pages/ReportPage'))
+const ReportListPage = lazy(() => import('@/features/my/pages/ReportListPage'))
 const SettingsPage = lazy(() => import('@/features/my/pages/SettingsPage'))
 const FaqPage = lazy(() => import('@/features/my/pages/FaqPage'))
 const SuggestPage = lazy(() => import('@/features/my/pages/SuggestPage'))
@@ -93,6 +94,9 @@ export function AppRouter() {
                 <Route path="/my/settings/faq" element={<FaqPage />} />
                 <Route path="/my/settings/suggest" element={<SuggestPage />} />
                 <Route path="/report/:targetId" element={<ReportPage />} />
+                {/* 신고서 목록 — 마이 페이지 신고하기 하위 항목. 피그마 의논 결과 페이지를 추가하기로 해
+                    라우트를 추가했다. */}
+                <Route path="/my/reportlist" element={<ReportListPage />} />
               </Route>
 
               {/* 탭바가 없는 화면 — 통화 */}

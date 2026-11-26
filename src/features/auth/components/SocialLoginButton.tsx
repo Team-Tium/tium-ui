@@ -5,12 +5,12 @@ import { BrandIcon } from './BrandIcon'
 /**
  * 외부 브랜드 색이다. index.css 토큰이 아니다 — 구글·카카오·네이버가 각자 고정한 값이라
  * 우리 팔레트에 넣지 않는다. (CLAUDE.md「색상 값을 하드코딩하지 않는다」의 예외: 소셜 버튼)
- * 값은 피그마 Login page 1 (143:701)의 테두리 색.
+ * 각 사 로그인 버튼 가이드의 바탕색·글자색을 따른다.
  */
 const BRAND: Record<Provider, { label: string; className: string }> = {
-  google: { label: 'Google', className: 'border-[#4285F4] text-[#4285F4]' },
-  kakao: { label: 'Kakao', className: 'border-[#FFCD00] text-[#FFCD00]' },
-  naver: { label: 'Naver', className: 'border-[#2FB14A] text-[#2FB14A]' },
+  google: { label: 'Google', className: 'border-[#DADCE0] bg-white text-[#1F1F1F]' },
+  kakao: { label: '카카오', className: 'border-transparent bg-[#FEE500] text-black/85' },
+  naver: { label: '네이버', className: 'border-transparent bg-[#03C75A] text-white' },
 }
 
 /**
@@ -26,10 +26,10 @@ export function SocialLoginButton({ provider }: { provider: Provider }) {
       onClick={() => {
         window.location.href = buildAuthorizeUrl(provider)
       }}
-      className={`flex h-12 w-full items-center justify-center gap-2 rounded-full border bg-background text-sm font-medium transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${className}`}
+      className={`text-body relative flex h-14 w-full items-center justify-center rounded-2xl border font-semibold transition hover:brightness-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98] ${className}`}
     >
-      <BrandIcon provider={provider} className="size-5" />
-      {label}로 로그인하기
+      <BrandIcon provider={provider} className="absolute left-5 size-5" />
+      {label}로 시작하기
     </button>
   )
 }
