@@ -4,6 +4,7 @@ import { useAuth } from "@/app/providers/auth-context"
 import { useSubscription } from "@/shared/socket/useSubscription"
 import { socketDestination, CHAT_EVENT } from "@/shared/socket/events"
 import { chatRoomListQueryKey } from "./useChatRoomList"
+import { chatMessagesQueryKey } from "./useChatMessages"
 import type { ChatRoomDto, ChatRoomListResponse, RoomUpdatedEvent, MemberLeftEvent } from "../types"
 
 /**
@@ -47,6 +48,13 @@ export function useChatListSocket() {
               })),
             },
         )
+        // 방 밖에 있는 동안 그 방의 메시지 캐시는 소켓으로 갱신되지 않는다.
+        // 낡았다고 표시만 해 두면, 방에 다시 들어갈 때 새로 불러온다.
+        // 방을 보고 있는 중이면 소켓이 이미 반영했으니 지금 다시 부르지는 않는다(refetchType: none).
+        queryClient.invalidateQueries({
+          queryKey: chatMessagesQueryKey(data.roomId),
+          refetchType: "none",
+        })
         break
       }
 

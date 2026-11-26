@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useChatMessages } from "../api/useChatMessages"
 import { useSendMessage } from "../api/useSendMessage"
-import { useReadReceipt } from "../api/useReadReceipt"
+import { useMarkLatestRead } from "../api/useReadReceipt"
 import { useLeaveRoom } from "../api/useLeaveRoom"
 import { useChatRoomSocket } from "../api/useChatRoomSocket"
 import { useChatRoomRecovery } from "../api/useChatRoomRecovery"
@@ -33,7 +33,7 @@ export default function ChatRoomPage() {
 
   const { data, isPending, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useChatMessages(roomId)
   const { mutate: sendMessage, isPending: isSending } = useSendMessage(roomId)
-  const { mutate: markRead } = useReadReceipt(roomId)
+  useMarkLatestRead(roomId, data?.messages.at(-1)?.id)
   const { mutate: leaveRoom, isPending: isLeaving } = useLeaveRoom(roomId)
   useChatRoomRecovery(roomId)
 
@@ -64,7 +64,6 @@ export default function ChatRoomPage() {
   const hasScrolledOnce = useRef(false)
   const prevScrollHeightRef = useRef<number | null>(null)
   const isNearBottomRef = useRef(true)
-  const lastMarkedIdRef = useRef<number | undefined>(undefined)
 
   const handleFetchNextPage = useCallback(() => {
     const container = scrollContainerRef.current
@@ -111,17 +110,6 @@ export default function ChatRoomPage() {
       bottomRef.current?.scrollIntoView({ block: "end" })
     }
   }, [data])
-
-  // 방을 보고 있는 동안 읽음 처리. 같은 ID로 중복 호출하지 않고, 화면이 보일 때만 보낸다.
-  useEffect(() => {
-    const latestId = data?.messages.at(-1)?.id
-    if (!latestId) return
-    if (latestId === lastMarkedIdRef.current) return
-    if (document.visibilityState !== "visible") return
-
-    lastMarkedIdRef.current = latestId
-    markRead(latestId)
-  }, [data?.messages, markRead])
 
   const isInputDisabled = isPending || isError || (data?.opponentLeft ?? true)
 

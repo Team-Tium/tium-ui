@@ -21,6 +21,9 @@ export function ChatMessageBubble({ message, avatarUrl, showAvatar, showTime }: 
     return <div className="py-2 text-center text-xs text-muted-foreground">{message.content}</div>
   }
 
+  // 1:1 방이라 안 읽은 사람은 많아야 한 명이다. isRead는 내 메시지에만 의미가 있다
+  const showUnread = message.mine && !message.isRead
+
   return (
     <div className={`flex items-end gap-1.5 px-4 py-1 ${message.mine ? "flex-row-reverse" : "flex-row"}`}>
       {!message.mine && (
@@ -39,10 +42,20 @@ export function ChatMessageBubble({ message, avatarUrl, showAvatar, showTime }: 
       >
         {message.content}
       </div>
-      {showTime && (
-        <time dateTime={message.sentAt} className="shrink-0 text-[10px] text-muted-foreground">
-          {formatMessageTime(message.sentAt)}
-        </time>
+      {(showUnread || showTime) && (
+        // 카카오톡처럼 안 읽음 "1"을 시간 위에 쌓는다. 말풍선 쪽으로 붙도록 내 메시지는 오른쪽 정렬
+        <div className={`flex shrink-0 flex-col text-[10px] leading-tight ${message.mine ? "items-end" : "items-start"}`}>
+          {showUnread && (
+            <span className="text-accent font-bold" aria-label="상대가 아직 읽지 않음">
+              1
+            </span>
+          )}
+          {showTime && (
+            <time dateTime={message.sentAt} className="text-muted-foreground">
+              {formatMessageTime(message.sentAt)}
+            </time>
+          )}
+        </div>
       )}
     </div>
   )
